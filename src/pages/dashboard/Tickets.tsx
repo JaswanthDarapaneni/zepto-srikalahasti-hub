@@ -2,10 +2,33 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MessageSquare } from "lucide-react";
-import tickets from "@/data/tickets.json";
+import { Plus, MessageSquare } from "lucide-react";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useActivityLog } from "@/hooks/useActivityLog";
+import { TicketDialog } from "@/components/dialogs/TicketDialog";
+import { useState } from "react";
+import { toast } from "sonner";
+import ticketsData from "@/data/tickets.json";
+
+interface Ticket {
+  id: string;
+  user_id: string;
+  subject: string;
+  category: string;
+  priority: string;
+  status: string;
+  description: string;
+  createdAt: string;
+  replies?: Array<{ from: string; message: string; timestamp: string }>;
+}
 
 const Tickets = () => {
+  const [tickets, setTickets] = useLocalStorage<Ticket[]>('tickets', ticketsData);
+  const { addLog } = useActivityLog();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>();
+  const [dialogMode, setDialogMode] = useState<'create' | 'reply'>('create');
+
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
       open: "destructive",
@@ -18,17 +41,52 @@ const Tickets = () => {
   const getPriorityBadge = (priority: string) => {
     const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
       high: "destructive",
+      urgent: "destructive",
       medium: "default",
       low: "outline",
     };
     return variants[priority] || "outline";
   };
 
+  const handleSave = (ticket: Ticket) => {
+    const existingIndex = tickets.findIndex((t) => t.id === ticket.id);
+    if (existingIndex >= 0) {
+      const updated = [...tickets];
+      updated[existingIndex] = ticket;
+      setTickets(updated);
+      addLog('update', 'tickets', `Updated ticket #${ticket.id}`);
+      toast.success('Ticket updated successfully');
+    } else {
+      setTickets([...tickets, ticket]);
+      addLog('create', 'tickets', `Created new ticket: ${ticket.subject}`);
+      toast.success('Ticket created successfully');
+    }
+  };
+
+  const handleReply = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    setDialogMode('reply');
+    setDialogOpen(true);
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold">Support Tickets</h2>
-        <p className="text-muted-foreground">Manage customer support tickets</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold">Support Tickets</h2>
+          <p className="text-muted-foreground">Manage customer support tickets</p>
+        </div>
+        <Button 
+          className="gap-2"
+          onClick={() => {
+            setSelectedTicket(undefined);
+            setDialogMode('create');
+            setDialogOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4" />
+          Create Ticket
+        </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -109,7 +167,7 @@ const Tickets = () => {
                   </TableCell>
                   <TableCell>{new Date(ticket.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>
-                    <Button size="icon" variant="ghost">
+                    <Button size="icon" variant="ghost" onClick={() => handleReply(ticket)}>
                       <MessageSquare className="h-4 w-4" />
                     </Button>
                   </TableCell>
@@ -119,6 +177,14 @@ const Tickets = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <TicketDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        ticket={selectedTicket}
+        onSave={handleSave}
+        mode={dialogMode}
+      />
     </div>
   );
 };

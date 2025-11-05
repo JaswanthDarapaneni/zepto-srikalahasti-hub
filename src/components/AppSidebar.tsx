@@ -11,6 +11,7 @@ import {
   Bell,
   Truck,
   Settings,
+  FileText,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
@@ -23,23 +24,32 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useRoleAccess } from "@/hooks/useRoleAccess";
 
-const menuItems = [
-  { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Shops", url: "/dashboard/shops", icon: Store },
-  { title: "Products", url: "/dashboard/products", icon: Package },
-  { title: "Orders", url: "/dashboard/orders", icon: ShoppingCart },
-  { title: "Users", url: "/dashboard/users", icon: Users },
-  { title: "Payments", url: "/dashboard/payments", icon: CreditCard },
-  { title: "Delivery", url: "/dashboard/delivery", icon: Truck },
-  { title: "Map", url: "/dashboard/map", icon: MapPin },
-  { title: "Tickets", url: "/dashboard/tickets", icon: Ticket },
-  { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
-  { title: "Notifications", url: "/dashboard/notifications", icon: Bell },
-  { title: "Settings", url: "/dashboard/settings", icon: Settings },
+const allMenuItems = [
+  { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: null },
+  { title: "Shops", url: "/dashboard/shops", icon: Store, permission: "canAccessShops" },
+  { title: "Products", url: "/dashboard/products", icon: Package, permission: "canAccessProducts" },
+  { title: "Orders", url: "/dashboard/orders", icon: ShoppingCart, permission: "canAccessOrders" },
+  { title: "Users", url: "/dashboard/users", icon: Users, permission: "canAccessUsers" },
+  { title: "Payments", url: "/dashboard/payments", icon: CreditCard, permission: "canAccessPayments" },
+  { title: "Delivery", url: "/dashboard/delivery", icon: Truck, permission: "canAccessDelivery" },
+  { title: "Map", url: "/dashboard/map", icon: MapPin, permission: "canAccessMap" },
+  { title: "Tickets", url: "/dashboard/tickets", icon: Ticket, permission: "canAccessTickets" },
+  { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3, permission: "canAccessAnalytics" },
+  { title: "Notifications", url: "/dashboard/notifications", icon: Bell, permission: "canAccessNotifications" },
+  { title: "Activity Logs", url: "/dashboard/logs", icon: FileText, permission: "canAccessLogs" },
+  { title: "Settings", url: "/dashboard/settings", icon: Settings, permission: "canAccessSettings" },
 ];
 
 export function AppSidebar() {
+  const permissions = useRoleAccess();
+
+  const menuItems = allMenuItems.filter((item) => {
+    if (!item.permission) return true;
+    return permissions[item.permission as keyof typeof permissions];
+  });
+
   return (
     <Sidebar>
       <SidebarContent>

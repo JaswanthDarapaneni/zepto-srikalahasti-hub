@@ -24,6 +24,8 @@ import Tickets from "./pages/dashboard/Tickets";
 import Analytics from "./pages/dashboard/Analytics";
 import Notifications from "./pages/dashboard/Notifications";
 import Settings from "./pages/dashboard/Settings";
+import Logs from "./pages/dashboard/Logs";
+import Coupons from "./pages/dashboard/Coupons";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -55,6 +57,8 @@ const App = () => (
                 <Route path="tickets" element={<Tickets />} />
                 <Route path="analytics" element={<Analytics />} />
                 <Route path="notifications" element={<Notifications />} />
+                <Route path="logs" element={<Logs />} />
+                <Route path="coupons" element={<Coupons />} />
                 <Route path="settings" element={<Settings />} />
               </Route>
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

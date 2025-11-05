@@ -2,10 +2,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye } from "lucide-react";
-import orders from "@/data/orders.json";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useActivityLog } from "@/hooks/useActivityLog";
+import { toast } from "sonner";
+import ordersData from "@/data/orders.json";
+
+interface Order {
+  id: string;
+  user_id: string;
+  total: number;
+  status: string;
+  payment_status: string;
+  createdAt: string;
+}
 
 const Orders = () => {
+  const [orders, setOrders] = useLocalStorage<Order[]>('orders', ordersData);
+  const { addLog } = useActivityLog();
+
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
       placed: "secondary",
@@ -18,6 +33,15 @@ const Orders = () => {
 
   const formatStatus = (status: string) => {
     return status.split("_").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+  };
+
+  const handleStatusChange = (orderId: string, newStatus: string) => {
+    const updated = orders.map((order) =>
+      order.id === orderId ? { ...order, status: newStatus } : order
+    );
+    setOrders(updated);
+    addLog('update', 'orders', `Updated order #${orderId} status to ${formatStatus(newStatus)}`);
+    toast.success('Order status updated');
   };
 
   return (
@@ -60,9 +84,20 @@ const Orders = () => {
                   </TableCell>
                   <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>
-                    <Button size="icon" variant="ghost">
-                      <Eye className="h-4 w-4" />
-                    </Button>
+                    <Select
+                      value={order.status}
+                      onValueChange={(value) => handleStatusChange(order.id, value)}
+                    >
+                      <SelectTrigger className="w-[160px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="placed">Placed</SelectItem>
+                        <SelectItem value="packed">Packed</SelectItem>
+                        <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
+                        <SelectItem value="delivered">Delivered</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </TableCell>
                 </TableRow>
               ))}

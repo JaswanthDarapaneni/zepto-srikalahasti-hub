@@ -6,63 +6,62 @@ import { Plus, Edit, Trash2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useActivityLog } from "@/hooks/useActivityLog";
-import { ProductDialog } from "@/components/dialogs/ProductDialog";
+import { CouponDialog } from "@/components/dialogs/CouponDialog";
 import { useState } from "react";
 import { toast } from "sonner";
-import productsData from "@/data/products.json";
+import couponsData from "@/data/coupons.json";
 
-interface Product {
+interface Coupon {
   id: string;
-  name: string;
-  price: number;
-  unit: string;
-  category_id?: string;
-  shop_id: string;
-  image: string;
-  stock: number;
+  code: string;
+  type: string;
+  value: number;
+  minOrder: number;
+  maxDiscount: number;
+  active: boolean;
   description?: string;
 }
 
-const Products = () => {
-  const [products, setProducts] = useLocalStorage<Product[]>('products', productsData);
+const Coupons = () => {
+  const [coupons, setCoupons] = useLocalStorage<Coupon[]>('coupons', couponsData);
   const { addLog } = useActivityLog();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>();
-  const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | undefined>();
+  const [couponToDelete, setCouponToDelete] = useState<string | null>(null);
 
-  const handleSave = (product: Product) => {
-    const existingIndex = products.findIndex((p) => p.id === product.id);
+  const handleSave = (coupon: Coupon) => {
+    const existingIndex = coupons.findIndex((c) => c.id === coupon.id);
     if (existingIndex >= 0) {
-      const updated = [...products];
-      updated[existingIndex] = product;
-      setProducts(updated);
-      addLog('update', 'products', `Updated product: ${product.name}`);
-      toast.success('Product updated successfully');
+      const updated = [...coupons];
+      updated[existingIndex] = coupon;
+      setCoupons(updated);
+      addLog('update', 'coupons', `Updated coupon: ${coupon.code}`);
+      toast.success('Coupon updated successfully');
     } else {
-      setProducts([...products, product]);
-      addLog('create', 'products', `Created new product: ${product.name}`);
-      toast.success('Product created successfully');
+      setCoupons([...coupons, coupon]);
+      addLog('create', 'coupons', `Created new coupon: ${coupon.code}`);
+      toast.success('Coupon created successfully');
     }
   };
 
-  const handleEdit = (product: Product) => {
-    setSelectedProduct(product);
+  const handleEdit = (coupon: Coupon) => {
+    setSelectedCoupon(coupon);
     setDialogOpen(true);
   };
 
   const handleDelete = (id: string) => {
-    setProductToDelete(id);
+    setCouponToDelete(id);
     setDeleteDialogOpen(true);
   };
 
   const confirmDelete = () => {
-    if (productToDelete) {
-      const product = products.find((p) => p.id === productToDelete);
-      setProducts(products.filter((p) => p.id !== productToDelete));
-      addLog('delete', 'products', `Deleted product: ${product?.name}`);
-      toast.success('Product deleted successfully');
-      setProductToDelete(null);
+    if (couponToDelete) {
+      const coupon = coupons.find((c) => c.id === couponToDelete);
+      setCoupons(coupons.filter((c) => c.id !== couponToDelete));
+      addLog('delete', 'coupons', `Deleted coupon: ${coupon?.code}`);
+      toast.success('Coupon deleted successfully');
+      setCouponToDelete(null);
     }
     setDeleteDialogOpen(false);
   };
@@ -71,62 +70,61 @@ const Products = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold">Products Management</h2>
-          <p className="text-muted-foreground">Manage inventory and products</p>
+          <h2 className="text-3xl font-bold">Coupons & Promotions</h2>
+          <p className="text-muted-foreground">Manage discount coupons and promotional codes</p>
         </div>
         <Button 
           className="gap-2"
           onClick={() => {
-            setSelectedProduct(undefined);
+            setSelectedCoupon(undefined);
             setDialogOpen(true);
           }}
         >
           <Plus className="h-4 w-4" />
-          Add Product
+          Add Coupon
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>All Products ({products.length})</CardTitle>
+          <CardTitle>All Coupons ({coupons.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Product</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Stock</TableHead>
+                <TableHead>Code</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Value</TableHead>
+                <TableHead>Min Order</TableHead>
+                <TableHead>Max Discount</TableHead>
+                <TableHead>Description</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((product) => (
-                <TableRow key={product.id}>
+              {coupons.map((coupon) => (
+                <TableRow key={coupon.id}>
+                  <TableCell className="font-mono font-bold">{coupon.code}</TableCell>
+                  <TableCell className="capitalize">{coupon.type}</TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="h-10 w-10 rounded object-cover"
-                      />
-                      <span className="font-medium">{product.name}</span>
-                    </div>
+                    {coupon.type === 'percentage' ? `${coupon.value}%` : `₹${coupon.value}`}
                   </TableCell>
-                  <TableCell>₹{product.price}/{product.unit}</TableCell>
-                  <TableCell>{product.stock} {product.unit}s</TableCell>
+                  <TableCell>₹{coupon.minOrder}</TableCell>
+                  <TableCell>₹{coupon.maxDiscount}</TableCell>
+                  <TableCell>{coupon.description || '-'}</TableCell>
                   <TableCell>
-                    <Badge variant={product.stock > 10 ? "default" : "destructive"}>
-                      {product.stock > 10 ? "In Stock" : "Low Stock"}
+                    <Badge variant={coupon.active ? "default" : "secondary"}>
+                      {coupon.active ? "Active" : "Inactive"}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button size="icon" variant="ghost" onClick={() => handleEdit(product)}>
+                      <Button size="icon" variant="ghost" onClick={() => handleEdit(coupon)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button size="icon" variant="ghost" onClick={() => handleDelete(product.id)}>
+                      <Button size="icon" variant="ghost" onClick={() => handleDelete(coupon.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -138,10 +136,10 @@ const Products = () => {
         </CardContent>
       </Card>
 
-      <ProductDialog
+      <CouponDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        product={selectedProduct}
+        coupon={selectedCoupon}
         onSave={handleSave}
       />
 
@@ -150,7 +148,7 @@ const Products = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the product.
+              This action cannot be undone. This will permanently delete the coupon.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -163,4 +161,4 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default Coupons;
