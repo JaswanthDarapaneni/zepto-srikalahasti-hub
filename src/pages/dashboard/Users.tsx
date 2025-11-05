@@ -1,13 +1,14 @@
+import { useState, useMemo } from 'react';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { TableSearch } from '@/components/TableSearch';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import { UserDialog } from "@/components/dialogs/UserDialog";
-import { useState } from "react";
 import { toast } from "sonner";
 import usersData from "@/data/users.json";
 
@@ -28,6 +29,7 @@ const Users = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | undefined>();
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const getRoleBadge = (role: string) => {
     const colors: Record<string, string> = {
@@ -77,6 +79,15 @@ const Users = () => {
     setDeleteDialogOpen(false);
   };
 
+  const filteredUsers = useMemo(() => {
+    return users.filter(user =>
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.phone.includes(searchQuery)
+    );
+  }, [users, searchQuery]);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -96,9 +107,17 @@ const Users = () => {
         </Button>
       </div>
 
+      <div className="mb-4">
+        <TableSearch
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search by name, email, role, or phone..."
+        />
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>All Users ({users.length})</CardTitle>
+          <CardTitle>All Users ({filteredUsers.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -113,7 +132,7 @@ const Users = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
+              {filteredUsers.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>

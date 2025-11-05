@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Chatbot } from "@/components/Chatbot";
+import { NotificationScheduler } from "@/components/NotificationScheduler";
 import Navbar from "@/components/Navbar";
 
 // Customer Pages
@@ -55,21 +56,27 @@ const App = () => (
         <CartProvider>
           <TooltipProvider>
             <Toaster />
-            {/* <Sonner /> */}
+            <NotificationScheduler />
             <BrowserRouter>
               <Routes>
                 {/* Customer Routes */}
-                <Route path="/customer" element={<><Navbar /><Chatbot /></>}>
-                  <Route index element={<CustomerHome />} />
-                  <Route path="categories" element={<Categories />} />
-                  <Route path="products" element={<Products />} />
-                  <Route path="products/:id" element={<ProductDetails />} />
-                  <Route path="shops" element={<Shops />} />
-                  <Route path="shop/:slug" element={<ShopDetails />} />
-                  <Route path="cart" element={<Cart />} />
-                  <Route path="checkout" element={<Checkout />} />
-                  <Route path="order-tracking/:orderId" element={<OrderTracking />} />
-                </Route>
+                <Route path="/customer/*" element={
+                  <>
+                    <Navbar />
+                    <Routes>
+                      <Route index element={<CustomerHome />} />
+                      <Route path="categories" element={<Categories />} />
+                      <Route path="products" element={<Products />} />
+                      <Route path="products/:id" element={<ProductDetails />} />
+                      <Route path="shops" element={<Shops />} />
+                      <Route path="shop/:slug" element={<ShopDetails />} />
+                      <Route path="cart" element={<Cart />} />
+                      <Route path="checkout" element={<Checkout />} />
+                      <Route path="order-tracking/:orderId" element={<OrderTracking />} />
+                    </Routes>
+                    <Chatbot />
+                  </>
+                } />
 
                 <Route path="/" element={<Navigate to="/customer" replace />} />
                 <Route path="/login" element={<Login />} />

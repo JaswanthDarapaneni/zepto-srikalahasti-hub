@@ -1,12 +1,14 @@
+import { useState, useMemo } from 'react';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useAuth } from '@/contexts/AuthContext';
+import { TableSearch } from '@/components/TableSearch';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Plus, MessageSquare } from "lucide-react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import { TicketDialog } from "@/components/dialogs/TicketDialog";
-import { useState } from "react";
 import { toast } from "sonner";
 import ticketsData from "@/data/tickets.json";
 
@@ -23,11 +25,13 @@ interface Ticket {
 }
 
 const Tickets = () => {
+  const { user } = useAuth();
   const [tickets, setTickets] = useLocalStorage<Ticket[]>('tickets', ticketsData);
   const { addLog } = useActivityLog();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>();
   const [dialogMode, setDialogMode] = useState<'create' | 'reply'>('create');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
@@ -69,6 +73,15 @@ const Tickets = () => {
     setDialogOpen(true);
   };
 
+  const filteredTickets = useMemo(() => {
+    return tickets.filter(ticket =>
+      ticket.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.user_id.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [tickets, searchQuery]);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -87,6 +100,14 @@ const Tickets = () => {
           <Plus className="h-4 w-4" />
           Create Ticket
         </Button>
+      </div>
+
+      <div className="mb-4">
+        <TableSearch
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search by subject, category, status, or user ID..."
+        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -132,7 +153,7 @@ const Tickets = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Tickets ({tickets.length})</CardTitle>
+          <CardTitle>All Tickets ({filteredTickets.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -148,11 +169,14 @@ const Tickets = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {tickets.map((ticket) => (
+              {filteredTickets.map((ticket) => (
                 <TableRow key={ticket.id}>
                   <TableCell className="font-mono text-sm">#{ticket.id}</TableCell>
-                  <TableCell className="max-w-xs truncate font-medium">
-                    {ticket.subject}
+                  <TableCell className="max-w-xs">
+                    <div>
+                      <div className="font-medium truncate">{ticket.subject}</div>
+                      <div className="text-xs text-muted-foreground">By: {ticket.user_id}</div>
+                    </div>
                   </TableCell>
                   <TableCell>{ticket.category}</TableCell>
                   <TableCell>
