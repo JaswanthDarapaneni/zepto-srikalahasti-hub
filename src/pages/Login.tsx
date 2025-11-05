@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, LogIn } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,7 +26,21 @@ const Login = () => {
         title: "Login Successful",
         description: "Welcome back!",
       });
-      navigate("/");
+      
+      // Get the logged-in user from localStorage immediately after login
+      const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
+      const role = loggedInUser.role;
+      
+      // Redirect based on role
+      if (role === "customer") {
+        navigate("/customer");
+      } else if (role === "delivery_agent") {
+        navigate("/dashboard/delivery");
+      } else if (role === "support") {
+        navigate("/dashboard/tickets");
+      } else {
+        navigate("/dashboard");
+      }
     } else {
       toast({
         title: "Login Failed",
@@ -47,7 +62,12 @@ const Login = () => {
           </Button>
         </Link>
 
-        <div className="mx-auto max-w-md">
+        <motion.div 
+          className="mx-auto max-w-md"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-2xl">
@@ -96,7 +116,7 @@ const Login = () => {
               </form>
             </CardContent>
           </Card>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

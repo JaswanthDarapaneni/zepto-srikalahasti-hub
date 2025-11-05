@@ -1,6 +1,7 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Outlet } from "react-router-dom";
+import { motion } from "framer-motion";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfileDialog } from "@/components/ProfileDialog";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,12 @@ const Dashboard = () => {
         <AppSidebar />
         
         <div className="flex flex-1 flex-col">
-          <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b border-border bg-background px-6">
+          <motion.header 
+            className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b border-border bg-background px-6"
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
             <div className="flex items-center gap-4">
               <SidebarTrigger />
               <h1 className="text-xl font-semibold">Dashboard</h1>
@@ -40,11 +46,16 @@ const Dashboard = () => {
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>
-          </header>
+          </motion.header>
 
-          <main className="flex-1 p-6">
+          <motion.main 
+            className="flex-1 p-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+          >
             <Outlet />
-          </main>
+          </motion.main>
         </div>
       </div>
       <ProfileDialog open={profileOpen} onOpenChange={setProfileOpen} />
