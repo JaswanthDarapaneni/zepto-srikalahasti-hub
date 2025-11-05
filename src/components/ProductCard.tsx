@@ -2,6 +2,7 @@ import { Minus, Plus, ShoppingBag } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { useCart } from "@/contexts/CartContext";
+import { Link } from "react-router-dom";
 
 interface ProductCardProps {
   id: string;
@@ -18,7 +19,9 @@ const ProductCard = ({ id, name, price, unit, image, stock }: ProductCardProps) 
   const quantity = cartItem?.quantity || 0;
 
   return (
+   
     <div className="group overflow-hidden rounded-2xl border border-border bg-card transition-all hover:shadow-lg">
+       <Link to={`/customer/products/${id}`}>
       <div className="relative aspect-square overflow-hidden">
         <img
           src={image}
@@ -31,14 +34,13 @@ const ProductCard = ({ id, name, price, unit, image, stock }: ProductCardProps) 
           </Badge>
         )}
       </div>
-
+</Link>
       <div className="p-4">
         <h3 className="mb-1 font-semibold text-foreground">{name}</h3>
         <p className="mb-3 text-lg font-bold text-primary">
           ₹{price}
           <span className="text-sm font-normal text-muted-foreground">/{unit}</span>
         </p>
-
         {quantity === 0 ? (
           <Button
             onClick={() => addItem(id)}

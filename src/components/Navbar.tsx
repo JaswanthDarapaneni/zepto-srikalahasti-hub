@@ -33,8 +33,14 @@ const Navbar = () => {
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
                 <span className="text-xl font-bold text-primary-foreground">Z</span>
               </div>
-              <span className="text-xl font-bold hidden sm:inline">ZeptoClone</span>
             </Link>
+            <div>
+          <p className="text-sm text-muted-foreground flex items-center gap-1">
+            <MapPin className="h-4 w-4 text-green-600" />
+            Srikalahasti
+          </p>
+          <h1 className="text-lg font-semibold">{"Hello, "+ user?.name}</h1>
+        </div>
           </div>
 
           <div className="flex-1 max-w-xl mx-4 hidden md:block">
@@ -42,13 +48,10 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 rounded-lg bg-muted px-3 py-1.5 text-sm">
-              <MapPin className="h-4 w-4 text-primary" />
-              <span className="font-medium">Srikalahasti</span>
-            </div>
+            
             
             <ThemeToggle />
-            <Link to="/cart">
+            <Link to="/customer/cart">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
                 {totalItems > 0 && (

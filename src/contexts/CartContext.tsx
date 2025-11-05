@@ -18,7 +18,8 @@ interface CartContextType {
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
-  totalItems: number;
+  totalItems: number; // counts unique items
+  totalQuantity: number; // counts all quantities (new)
   totalPrice: number;
 }
 
@@ -83,7 +84,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setItems([]);
   };
 
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  // ✅ total unique products (not quantity)
+  const totalItems = items.length;
+
+  // ✅ total quantity of all items (for display badges etc.)
+  const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  // ✅ total price
   const totalPrice = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
@@ -98,6 +105,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         updateQuantity,
         clearCart,
         totalItems,
+        totalQuantity,
         totalPrice,
       }}
     >

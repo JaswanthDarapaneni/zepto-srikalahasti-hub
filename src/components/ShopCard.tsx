@@ -14,7 +14,7 @@ interface ShopCardProps {
 
 const ShopCard = ({ slug, name, image, rating, deliveryTime, category, isOpen }: ShopCardProps) => {
   return (
-    <Link to={`/shop/${slug}`}>
+    <Link to={`/customer/shop/${slug}`}>
       <div className="group cursor-pointer overflow-hidden rounded-2xl border border-border bg-card transition-all hover:shadow-lg">
         <div className="relative aspect-video overflow-hidden">
           <img 

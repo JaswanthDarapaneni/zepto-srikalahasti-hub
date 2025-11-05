@@ -11,7 +11,6 @@ const Cart = () => {
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
         <div className="container mx-auto px-4 py-12">
           <div className="mx-auto max-w-md text-center">
             <ShoppingBag className="mx-auto mb-4 h-24 w-24 text-muted-foreground" />
@@ -33,7 +32,6 @@ const Cart = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
 
       <div className="container mx-auto px-4 py-6">
         <Link to="/">

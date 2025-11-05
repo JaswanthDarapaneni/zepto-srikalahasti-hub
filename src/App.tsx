@@ -82,7 +82,7 @@ const App = () => (
                 <Route path="/login" element={<Login />} />
 
                 {/* Dashboard Routes - Protected */}
-                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>}>
+                {/* <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>}>
                   <Route index element={<DashboardHome />} />
                   <Route path="shops" element={<DashboardShops />} />
                   <Route path="products" element={<DashboardProducts />} />
@@ -101,7 +101,132 @@ const App = () => (
                   <Route path="offers" element={<Offers />} />
                   <Route path="giftcards" element={<GiftCards />} />
                   <Route path="settings" element={<Settings />} />
-                </Route>
+                </Route> */}
+
+                <Route
+  path="/dashboard"
+  element={
+    <ProtectedRoute allowedRoles={['admin', 'manager', 'shop_owner']}>
+      <Dashboard />
+    </ProtectedRoute>
+  }
+>
+  <Route index element={<DashboardHome />} />
+
+  {/* Shop Management */}
+  <Route
+    path="shops"
+    element={
+      <ProtectedRoute requiredPermission="canAccessShops">
+        <DashboardShops />
+      </ProtectedRoute>
+    }
+  />
+
+  {/* Product Management */}
+  <Route
+    path="products"
+    element={
+      <ProtectedRoute requiredPermission="canAccessProducts">
+        <DashboardProducts />
+      </ProtectedRoute>
+    }
+  />
+
+  {/* Orders */}
+  <Route
+    path="orders"
+    element={
+      <ProtectedRoute requiredPermission="canAccessOrders">
+        <Orders />
+      </ProtectedRoute>
+    }
+  />
+
+  {/* Users */}
+  <Route
+    path="users"
+    element={
+      <ProtectedRoute requiredPermission="canAccessUsers">
+        <Users />
+      </ProtectedRoute>
+    }
+  />
+
+  {/* Payments */}
+  <Route
+    path="payments"
+    element={
+      <ProtectedRoute requiredPermission="canAccessPayments">
+        <Payments />
+      </ProtectedRoute>
+    }
+  />
+
+  {/* Delivery */}
+  <Route
+    path="delivery"
+    element={
+      <ProtectedRoute requiredPermission="canAccessDelivery">
+        <Delivery />
+      </ProtectedRoute>
+    }
+  />
+
+  {/* Map */}
+  <Route
+    path="map"
+    element={
+      <ProtectedRoute requiredPermission="canAccessMap">
+        <MapView />
+      </ProtectedRoute>
+    }
+  />
+
+  {/* Tickets */}
+  <Route
+    path="tickets"
+    element={
+      <ProtectedRoute requiredPermission="canAccessTickets">
+        <Tickets />
+      </ProtectedRoute>
+    }
+  />
+
+  {/* Analytics */}
+  <Route
+    path="analytics"
+    element={
+      <ProtectedRoute requiredPermission="canAccessAnalytics">
+        <Analytics />
+      </ProtectedRoute>
+    }
+  />
+
+  {/* Settings */}
+  <Route
+    path="settings"
+    element={
+      <ProtectedRoute requiredPermission="canAccessSettings">
+        <Settings />
+      </ProtectedRoute>
+    }
+  />
+
+  {/* Logs */}
+  <Route
+    path="logs"
+    element={
+      <ProtectedRoute requiredPermission="canAccessLogs">
+        <Logs />
+      </ProtectedRoute>
+    }
+  />
+
+  {/* Fallbacks */}
+  <Route path="*" element={<NotFound />} />
+</Route>
+
 
                 <Route path="*" element={<NotFound />} />
               </Routes>

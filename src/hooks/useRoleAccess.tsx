@@ -1,132 +1,152 @@
 import { useAuth } from '@/contexts/AuthContext';
 
-type Role = 'admin' | 'manager' | 'shop_owner' | 'delivery_agent' | 'support' | 'customer';
+type Role =
+  | 'admin'
+  | 'manager'
+  | 'shop_owner'
+  | 'delivery_agent'
+  | 'support'
+  | 'customer';
 
-interface RolePermissions {
-  canAccessUsers: boolean;
-  canAccessShops: boolean;
-  canAccessProducts: boolean;
-  canAccessOrders: boolean;
-  canAccessPayments: boolean;
-  canAccessTickets: boolean;
-  canAccessAnalytics: boolean;
-  canAccessSettings: boolean;
-  canAccessDelivery: boolean;
-  canAccessMap: boolean;
-  canAccessNotifications: boolean;
-  canAccessLogs: boolean;
+interface CRUD {
+  read: boolean;
+  update: boolean;
+  delete: boolean;
+  view: boolean;
 }
 
+interface RolePermissions {
+  canAccessUsers: CRUD;
+  canAccessShops: CRUD;
+  canAccessProducts: CRUD;
+  canAccessOrders: CRUD;
+  canAccessPayments: CRUD;
+  canAccessTickets: CRUD;
+  canAccessAnalytics: CRUD;
+  canAccessSettings: CRUD;
+  canAccessDelivery: CRUD;
+  canAccessMap: CRUD;
+  canAccessNotifications: CRUD;
+  canAccessLogs: CRUD;
+}
+
+// Common permission presets
+const fullCRUD: CRUD = { read: true, update: true, delete: true, view: true };
+const readOnlyCRUD: CRUD = { read: true, update: false, delete: false, view: true };
+const noAccessCRUD: CRUD = { read: false, update: false, delete: false, view: false };
+
+// Role-based permissions
 const rolePermissions: Record<Role, RolePermissions> = {
+  // 👑 Admin — Full access, settings, logs, analytics
   admin: {
-    canAccessUsers: true,
-    canAccessShops: true,
-    canAccessProducts: true,
-    canAccessOrders: true,
-    canAccessPayments: true,
-    canAccessTickets: true,
-    canAccessAnalytics: true,
-    canAccessSettings: true,
-    canAccessDelivery: true,
-    canAccessMap: true,
-    canAccessNotifications: true,
-    canAccessLogs: true,
+    canAccessUsers: fullCRUD,
+    canAccessShops: fullCRUD,
+    canAccessProducts: fullCRUD,
+    canAccessOrders: fullCRUD,
+    canAccessPayments: fullCRUD,
+    canAccessTickets: fullCRUD,
+    canAccessAnalytics: fullCRUD,
+    canAccessSettings: fullCRUD,
+    canAccessDelivery: fullCRUD,
+    canAccessMap: fullCRUD,
+    canAccessNotifications: fullCRUD,
+    canAccessLogs: fullCRUD,
   },
+
+  // 🧑‍💼 Manager — Manage orders, shops, and inventory
   manager: {
-    canAccessUsers: false,
-    canAccessShops: true,
-    canAccessProducts: true,
-    canAccessOrders: true,
-    canAccessPayments: true,
-    canAccessTickets: false,
-    canAccessAnalytics: true,
-    canAccessSettings: false,
-    canAccessDelivery: true,
-    canAccessMap: true,
-    canAccessNotifications: true,
-    canAccessLogs: false,
+    canAccessUsers: readOnlyCRUD,
+    canAccessShops: fullCRUD,
+    canAccessProducts: fullCRUD,
+    canAccessOrders: fullCRUD,
+    canAccessPayments: fullCRUD,
+    canAccessTickets: readOnlyCRUD,
+    canAccessAnalytics: fullCRUD,
+    canAccessSettings: readOnlyCRUD,
+    canAccessDelivery: fullCRUD,
+    canAccessMap: fullCRUD,
+    canAccessNotifications: fullCRUD,
+    canAccessLogs: readOnlyCRUD,
   },
+
+  // 🏪 Shop Owner — Manage products, orders, and shop analytics
   shop_owner: {
-    canAccessUsers: false,
-    canAccessShops: true,
-    canAccessProducts: true,
-    canAccessOrders: true,
-    canAccessPayments: false,
-    canAccessTickets: false,
-    canAccessAnalytics: true,
-    canAccessSettings: false,
-    canAccessDelivery: false,
-    canAccessMap: false,
-    canAccessNotifications: true,
-    canAccessLogs: false,
+    canAccessUsers: noAccessCRUD,
+    canAccessShops: fullCRUD,
+    canAccessProducts: fullCRUD,
+    canAccessOrders: fullCRUD,
+    canAccessPayments: readOnlyCRUD,
+    canAccessTickets: readOnlyCRUD,
+    canAccessAnalytics: fullCRUD,
+    canAccessSettings: noAccessCRUD,
+    canAccessDelivery: noAccessCRUD,
+    canAccessMap: noAccessCRUD,
+    canAccessNotifications: readOnlyCRUD,
+    canAccessLogs: noAccessCRUD,
   },
+
+  // 🚚 Delivery Agent — View assigned orders, live update location/status
   delivery_agent: {
-    canAccessUsers: false,
-    canAccessShops: false,
-    canAccessProducts: false,
-    canAccessOrders: true,
-    canAccessPayments: false,
-    canAccessTickets: false,
-    canAccessAnalytics: false,
-    canAccessSettings: false,
-    canAccessDelivery: true,
-    canAccessMap: true,
-    canAccessNotifications: true,
-    canAccessLogs: false,
+    canAccessUsers: noAccessCRUD,
+    canAccessShops: noAccessCRUD,
+    canAccessProducts: noAccessCRUD,
+    canAccessOrders: readOnlyCRUD,
+    canAccessPayments: noAccessCRUD,
+    canAccessTickets: noAccessCRUD,
+    canAccessAnalytics: noAccessCRUD,
+    canAccessSettings: noAccessCRUD,
+    canAccessDelivery: fullCRUD, // delivery status/location updates
+    canAccessMap: fullCRUD,
+    canAccessNotifications: readOnlyCRUD,
+    canAccessLogs: noAccessCRUD,
   },
+
+  // 🎧 Support Agent — Handle tickets and feedback
   support: {
-    canAccessUsers: false,
-    canAccessShops: false,
-    canAccessProducts: false,
-    canAccessOrders: true,
-    canAccessPayments: false,
-    canAccessTickets: true,
-    canAccessAnalytics: false,
-    canAccessSettings: false,
-    canAccessDelivery: false,
-    canAccessMap: false,
-    canAccessNotifications: true,
-    canAccessLogs: false,
+    canAccessUsers: readOnlyCRUD,
+    canAccessShops: noAccessCRUD,
+    canAccessProducts: noAccessCRUD,
+    canAccessOrders: readOnlyCRUD,
+    canAccessPayments: noAccessCRUD,
+    canAccessTickets: fullCRUD,
+    canAccessAnalytics: noAccessCRUD,
+    canAccessSettings: noAccessCRUD,
+    canAccessDelivery: noAccessCRUD,
+    canAccessMap: noAccessCRUD,
+    canAccessNotifications: fullCRUD,
+    canAccessLogs: noAccessCRUD,
   },
+
+  // 🛒 Customer — Place orders, view history, reviews
   customer: {
-    canAccessUsers: false,
-    canAccessShops: false,
-    canAccessProducts: false,
-    canAccessOrders: true,
-    canAccessPayments: false,
-    canAccessTickets: true,
-    canAccessAnalytics: false,
-    canAccessSettings: false,
-    canAccessDelivery: false,
-    canAccessMap: false,
-    canAccessNotifications: true,
-    canAccessLogs: false,
+    canAccessUsers: noAccessCRUD,
+    canAccessShops: readOnlyCRUD,
+    canAccessProducts: readOnlyCRUD,
+    canAccessOrders: fullCRUD, // placing and viewing orders
+    canAccessPayments: readOnlyCRUD,
+    canAccessTickets: fullCRUD, // support/feedback
+    canAccessAnalytics: noAccessCRUD,
+    canAccessSettings: noAccessCRUD,
+    canAccessDelivery: readOnlyCRUD,
+    canAccessMap: readOnlyCRUD,
+    canAccessNotifications: fullCRUD,
+    canAccessLogs: noAccessCRUD,
   },
 };
 
 export function useRoleAccess() {
   const { user } = useAuth();
-  
+
   if (!user) {
     return {
-      canAccessUsers: false,
-      canAccessShops: false,
-      canAccessProducts: false,
-      canAccessOrders: false,
-      canAccessPayments: false,
-      canAccessTickets: false,
-      canAccessAnalytics: false,
-      canAccessSettings: false,
-      canAccessDelivery: false,
-      canAccessMap: false,
-      canAccessNotifications: false,
-      canAccessLogs: false,
+      ...rolePermissions.customer, // default minimal access
       role: null,
     };
   }
 
+  const role = user.role as Role;
   return {
-    ...rolePermissions[user.role as Role],
-    role: user.role,
+    ...rolePermissions[role],
+    role,
   };
 }
