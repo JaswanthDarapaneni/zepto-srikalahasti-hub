@@ -52,12 +52,18 @@ export function AppSidebar() {
 
   const menuItems = allMenuItems.filter((item) => {
     if (!item.permission) return true;
-    return permissions[item.permission as keyof typeof permissions];
+    const perm = permissions[item.permission as keyof typeof permissions];
+    // Check if perm is an object with read/view properties
+    if (perm && typeof perm === "object" && ("read" in perm || "view" in perm)) {
+      return (perm as any).read || (perm as any).view;
+    }
+    return false;
   });
 
   return (
     <Sidebar>
       <SidebarContent>
+        {/* Header */}
         <div className="px-6 py-4">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
@@ -67,6 +73,7 @@ export function AppSidebar() {
           </div>
         </div>
 
+        {/* Sidebar Menu */}
         <SidebarGroup>
           <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
           <SidebarGroupContent>

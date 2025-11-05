@@ -1,43 +1,46 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import CategoryCard from '@/components/CategoryCard';
-import ShopCard from '@/components/ShopCard';
-import ProductCard from '@/components/ProductCard';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Search, Filter } from 'lucide-react';
-import categories from '@/data/categories.json';
-import shops from '@/data/shops.json';
-import products from '@/data/products.json';
-import banners from '@/data/banners.json';
-import heroBanner from '@/assets/hero-banner.jpg';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import CategoryCard from "@/components/CategoryCard";
+import ShopCard from "@/components/ShopCard";
+import ProductCard from "@/components/ProductCard";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search, Filter } from "lucide-react";
+import categories from "@/data/categories.json";
+import shops from "@/data/shops.json";
+import products from "@/data/products.json";
+import banners from "@/data/banners.json";
+import heroBanner from "@/assets/hero-banner.jpg";
 
 const Home = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>(categories[0].id);
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = !selectedCategory || product.category_id === selectedCategory;
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = product.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      !selectedCategory || product.category_id === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
   const bestSellingProducts = products.slice(0, 6);
-  const activeBanner = banners.find(b => b.active);
+  const activeBanner = banners.find((b) => b.active);
 
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Banner */}
       <div className="relative h-[400px] overflow-hidden">
-        <img 
-          src={activeBanner?.image || heroBanner} 
-          alt="Hero" 
+        <img
+          src={activeBanner?.image || heroBanner}
+          alt="Hero"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent flex items-center">
           <div className="container mx-auto px-6">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-              {activeBanner?.title || 'Fresh Groceries Delivered in Minutes'}
+              {activeBanner?.title || "Fresh Groceries Delivered in Minutes"}
             </h1>
             <p className="text-xl text-white/90 mb-6">
               Shop from local stores near you
@@ -47,22 +50,6 @@ const Home = () => {
       </div>
 
       <div className="container mx-auto px-6 py-8">
-        {/* Search & Filter */}
-        <div className="mb-8 flex gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <Button variant="outline" size="icon">
-            <Filter className="h-4 w-4" />
-          </Button>
-        </div>
-
         {/* Categories */}
         <section className="mb-12">
           <div className="flex justify-between items-center mb-6">
@@ -71,10 +58,35 @@ const Home = () => {
               <Button variant="link">View All</Button>
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {categories.slice(0, 6).map(category => (
-              <div key={category.id} onClick={() => setSelectedCategory(category.id)}>
-                <CategoryCard {...category} />
+          <div className="flex justify-between overflow-x-auto no-scrollbar gap-4 px-4 py-2">
+            {categories.map((category) => (
+              <div
+                key={category.id}
+                className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0"
+              >
+                <Button
+                  variant={
+                    selectedCategory === category.id ? "default" : "outline"
+                  }
+                  onClick={() => setSelectedCategory(category.id)}
+                  size="icon"
+                  className={`w-14 h-14 rounded-full flex items-center justify-center border ${
+                    selectedCategory === category.id
+                      ? "bg-green-600 text-white border-green-600"
+                      : "bg-white text-gray-700 border-gray-300"
+                  }`}
+                >
+                  <span className="text-lg">{category.icon}</span>
+                </Button>
+                <span
+                  className={`text-xs text-center ${
+                    selectedCategory === category.id
+                      ? "text-green-600 font-medium"
+                      : "text-gray-700"
+                  }`}
+                >
+                  {category.name}
+                </span>
               </div>
             ))}
           </div>
@@ -89,7 +101,7 @@ const Home = () => {
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {bestSellingProducts.map(product => (
+            {bestSellingProducts.map((product) => (
               <ProductCard key={product.id} {...product} />
             ))}
           </div>
@@ -100,7 +112,7 @@ const Home = () => {
           <section className="mb-12">
             <h2 className="text-2xl font-bold mb-6">Search Results</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {filteredProducts.map(product => (
+              {filteredProducts.map((product) => (
                 <ProductCard key={product.id} {...product} />
               ))}
             </div>
@@ -116,7 +128,7 @@ const Home = () => {
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {shops.slice(0, 6).map(shop => (
+            {shops.slice(0, 6).map((shop) => (
               <ShopCard key={shop.id} {...shop} />
             ))}
           </div>
