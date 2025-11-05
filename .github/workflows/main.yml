@@ -3,7 +3,10 @@ name: Deploy Vite app to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - main  # or your default branch
+
+permissions:
+  contents: write   # ✅ THIS IS REQUIRED for pushing
 
 jobs:
   deploy:
