@@ -1,0 +1,35 @@
+[
+  {
+    "id": "ad1",
+    "title": "Summer Sale Banner",
+    "image": "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da",
+    "link": "/offers",
+    "duration": 5,
+    "position": "top",
+    "active": true,
+    "revenue": 125.50,
+    "clicks": 450
+  },
+  {
+    "id": "ad2",
+    "title": "Fresh Vegetables Promo",
+    "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999",
+    "link": "/products",
+    "duration": 3,
+    "position": "sidebar",
+    "active": true,
+    "revenue": 89.30,
+    "clicks": 320
+  },
+  {
+    "id": "ad3",
+    "title": "Weekend Deals",
+    "image": "https://images.unsplash.com/photo-1601598851547-4302969d0614",
+    "link": "/shops",
+    "duration": 4,
+    "position": "bottom",
+    "active": false,
+    "revenue": 45.00,
+    "clicks": 150
+  }
+]

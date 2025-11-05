@@ -1,0 +1,30 @@
+[
+  {
+    "id": "gc1",
+    "code": "GIFT500",
+    "amount": 500,
+    "balance": 500,
+    "validFrom": "2024-01-01",
+    "validTo": "2024-12-31",
+    "active": true
+  },
+  {
+    "id": "gc2",
+    "code": "GIFT1000",
+    "amount": 1000,
+    "balance": 1000,
+    "validFrom": "2024-01-01",
+    "validTo": "2024-12-31",
+    "active": true
+  },
+  {
+    "id": "gc3",
+    "code": "GIFT200",
+    "amount": 200,
+    "balance": 50,
+    "validFrom": "2024-01-01",
+    "validTo": "2024-06-30",
+    "active": true,
+    "usedBy": "user6"
+  }
+]

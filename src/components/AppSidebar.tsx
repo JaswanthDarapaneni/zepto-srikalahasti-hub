@@ -33,12 +33,17 @@ const allMenuItems = [
   { title: "Orders", url: "/dashboard/orders", icon: ShoppingCart, permission: "canAccessOrders" },
   { title: "Users", url: "/dashboard/users", icon: Users, permission: "canAccessUsers" },
   { title: "Payments", url: "/dashboard/payments", icon: CreditCard, permission: "canAccessPayments" },
+  { title: "Coupons", url: "/dashboard/coupons", icon: Ticket, permission: "canAccessSettings" },
   { title: "Delivery", url: "/dashboard/delivery", icon: Truck, permission: "canAccessDelivery" },
   { title: "Map", url: "/dashboard/map", icon: MapPin, permission: "canAccessMap" },
   { title: "Tickets", url: "/dashboard/tickets", icon: Ticket, permission: "canAccessTickets" },
   { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3, permission: "canAccessAnalytics" },
   { title: "Notifications", url: "/dashboard/notifications", icon: Bell, permission: "canAccessNotifications" },
-  { title: "Activity Logs", url: "/dashboard/logs", icon: FileText, permission: "canAccessLogs" },
+  { title: "Banners", url: "/dashboard/banners", icon: FileText, permission: "canAccessSettings" },
+  { title: "Ads", url: "/dashboard/ads", icon: FileText, permission: "canAccessSettings" },
+  { title: "Offers", url: "/dashboard/offers", icon: FileText, permission: "canAccessSettings" },
+  { title: "Gift Cards", url: "/dashboard/giftcards", icon: FileText, permission: "canAccessSettings" },
+  { title: "Logs", url: "/dashboard/logs", icon: FileText, permission: "canAccessLogs" },
   { title: "Settings", url: "/dashboard/settings", icon: Settings, permission: "canAccessSettings" },
 ];
 

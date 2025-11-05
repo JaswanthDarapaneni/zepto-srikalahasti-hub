@@ -31,5 +31,9 @@ export function useActivityLog() {
     setLogs((prev) => [newLog, ...prev]);
   };
 
-  return { logs, addLog };
+  const logAction = (action: string, module: string, details: string) => {
+    addLog(action, module, details);
+  };
+
+  return { logs, addLog, logAction };
 }

@@ -1,0 +1,53 @@
+[
+  {
+    "id": "offer1",
+    "title": "Fresh Vegetables 20% Off",
+    "description": "Get 20% off on all fresh vegetables",
+    "type": "category",
+    "discountType": "percentage",
+    "discountValue": 20,
+    "minOrder": 200,
+    "validFrom": "2024-03-01",
+    "validTo": "2024-03-31",
+    "active": true,
+    "targetId": "cat2"
+  },
+  {
+    "id": "offer2",
+    "title": "Fruits Bundle Deal",
+    "description": "Buy 2kg fruits, get ₹50 off",
+    "type": "category",
+    "discountType": "flat",
+    "discountValue": 50,
+    "minOrder": 300,
+    "validFrom": "2024-03-01",
+    "validTo": "2024-03-31",
+    "active": true,
+    "targetId": "cat3"
+  },
+  {
+    "id": "offer3",
+    "title": "Shop Special - Fresh Mart",
+    "description": "15% off on all items from Fresh Mart",
+    "type": "shop",
+    "discountType": "percentage",
+    "discountValue": 15,
+    "minOrder": 500,
+    "validFrom": "2024-03-15",
+    "validTo": "2024-03-30",
+    "active": true,
+    "targetId": "shop1"
+  },
+  {
+    "id": "offer4",
+    "title": "Ad Banner Discount",
+    "description": "Click on banner ads for special discounts",
+    "type": "ad",
+    "discountType": "percentage",
+    "discountValue": 10,
+    "minOrder": 100,
+    "validFrom": "2024-03-01",
+    "validTo": "2024-04-30",
+    "active": true
+  }
+]
