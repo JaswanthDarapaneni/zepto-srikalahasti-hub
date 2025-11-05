@@ -1,0 +1,47 @@
+[
+  {
+    "id": "notif1",
+    "user_id": "user6",
+    "title": "Order Delivered",
+    "message": "Your order #order1 has been delivered successfully",
+    "type": "order",
+    "read": true,
+    "createdAt": "2024-03-15T10:45:00Z"
+  },
+  {
+    "id": "notif2",
+    "user_id": "user6",
+    "title": "Order Out for Delivery",
+    "message": "Your order #order2 is out for delivery",
+    "type": "order",
+    "read": false,
+    "createdAt": "2024-03-16T14:30:00Z"
+  },
+  {
+    "id": "notif3",
+    "user_id": "user6",
+    "title": "Order Confirmed",
+    "message": "Your order #order4 has been confirmed",
+    "type": "order",
+    "read": false,
+    "createdAt": "2024-03-18T11:05:00Z"
+  },
+  {
+    "id": "notif4",
+    "user_id": "user4",
+    "title": "New Delivery Assignment",
+    "message": "You have been assigned order #order2",
+    "type": "delivery",
+    "read": false,
+    "createdAt": "2024-03-16T14:25:00Z"
+  },
+  {
+    "id": "notif5",
+    "user_id": "user2",
+    "title": "Low Stock Alert",
+    "message": "Stock running low for Organic Milk",
+    "type": "inventory",
+    "read": false,
+    "createdAt": "2024-03-18T09:00:00Z"
+  }
+]

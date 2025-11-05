@@ -1,0 +1,47 @@
+[
+  {
+    "id": "pay1",
+    "order_id": "order1",
+    "amount": 420,
+    "method": "razorpay",
+    "status": "completed",
+    "transaction_id": "pay_ABC123XYZ",
+    "createdAt": "2024-03-15T10:30:00Z"
+  },
+  {
+    "id": "pay2",
+    "order_id": "order3",
+    "amount": 300,
+    "method": "razorpay",
+    "status": "completed",
+    "transaction_id": "pay_DEF456UVW",
+    "createdAt": "2024-03-17T09:15:00Z"
+  },
+  {
+    "id": "pay3",
+    "order_id": "order4",
+    "amount": 550,
+    "method": "razorpay",
+    "status": "completed",
+    "transaction_id": "pay_GHI789RST",
+    "createdAt": "2024-03-18T11:00:00Z"
+  },
+  {
+    "id": "pay4",
+    "order_id": "order2",
+    "amount": 180,
+    "method": "cod",
+    "status": "pending",
+    "transaction_id": null,
+    "createdAt": "2024-03-16T14:20:00Z"
+  },
+  {
+    "id": "pay5",
+    "order_id": "order5",
+    "amount": 200,
+    "method": "cod",
+    "status": "pending",
+    "transaction_id": null,
+    "createdAt": "2024-03-18T15:30:00Z"
+  }
+]

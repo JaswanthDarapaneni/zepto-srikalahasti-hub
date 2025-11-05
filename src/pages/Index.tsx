@@ -118,6 +118,7 @@ const Index = () => {
             {featuredShops.map((shop) => (
               <ShopCard
                 key={shop.id}
+                slug={shop.slug}
                 name={shop.name}
                 image={shop.image}
                 rating={shop.rating}

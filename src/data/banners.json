@@ -1,0 +1,23 @@
+[
+  {
+    "id": "banner1",
+    "title": "Get 20% Off on First Order",
+    "image": "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200",
+    "link": "/shops",
+    "active": true
+  },
+  {
+    "id": "banner2",
+    "title": "Free Delivery on Orders Above ₹500",
+    "image": "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=1200",
+    "link": "/shops",
+    "active": true
+  },
+  {
+    "id": "banner3",
+    "title": "Fresh Vegetables Daily",
+    "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=1200",
+    "link": "/category/vegetables",
+    "active": true
+  }
+]

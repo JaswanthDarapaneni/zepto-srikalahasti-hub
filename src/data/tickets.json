@@ -1,0 +1,62 @@
+[
+  {
+    "id": "ticket1",
+    "user_id": "user6",
+    "subject": "Order not delivered",
+    "category": "Order",
+    "description": "My order #order2 was supposed to be delivered but I haven't received it yet.",
+    "status": "in_progress",
+    "priority": "high",
+    "assigned_to": "user5",
+    "createdAt": "2024-03-16T15:00:00Z",
+    "updatedAt": "2024-03-16T15:30:00Z"
+  },
+  {
+    "id": "ticket2",
+    "user_id": "user6",
+    "subject": "Payment failed but amount deducted",
+    "category": "Payment",
+    "description": "I tried to pay for order #order3 via Razorpay but payment failed. However, amount was deducted from my account.",
+    "status": "closed",
+    "priority": "high",
+    "assigned_to": "user5",
+    "createdAt": "2024-03-17T10:00:00Z",
+    "updatedAt": "2024-03-17T12:00:00Z"
+  },
+  {
+    "id": "ticket3",
+    "user_id": "user6",
+    "subject": "Product quality issue",
+    "category": "Product",
+    "description": "The tomatoes I received were not fresh and had spots.",
+    "status": "open",
+    "priority": "medium",
+    "assigned_to": null,
+    "createdAt": "2024-03-18T09:00:00Z",
+    "updatedAt": "2024-03-18T09:00:00Z"
+  },
+  {
+    "id": "ticket4",
+    "user_id": "user6",
+    "subject": "Coupon not working",
+    "category": "Order",
+    "description": "I tried using coupon FIRST20 but it's not getting applied at checkout.",
+    "status": "in_progress",
+    "priority": "low",
+    "assigned_to": "user5",
+    "createdAt": "2024-03-18T14:00:00Z",
+    "updatedAt": "2024-03-18T14:30:00Z"
+  },
+  {
+    "id": "ticket5",
+    "user_id": "user6",
+    "subject": "Delivery location update",
+    "category": "Order",
+    "description": "I need to change the delivery address for my order #order4.",
+    "status": "open",
+    "priority": "medium",
+    "assigned_to": null,
+    "createdAt": "2024-03-18T11:30:00Z",
+    "updatedAt": "2024-03-18T11:30:00Z"
+  }
+]
