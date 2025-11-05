@@ -31,13 +31,12 @@ export function TicketDialog({ open, onOpenChange, ticket, onSave, mode = 'creat
   const { user } = useAuth();
   const [formData, setFormData] = useState<Ticket>({
     id: '',
-    userId: '',
-    userName: '',
+    user_id: '',
     subject: '',
     category: 'order',
     priority: 'medium',
     status: 'open',
-    message: '',
+    description: '',
     createdAt: new Date().toISOString(),
     replies: [],
   });

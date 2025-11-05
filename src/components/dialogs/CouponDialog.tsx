@@ -32,8 +32,8 @@ export function CouponDialog({ open, onOpenChange, coupon, onSave }: CouponDialo
     value: 0,
     minOrder: 0,
     maxDiscount: 0,
-    isActive: true,
-    expiresAt: '',
+    active: true,
+    description: '',
   });
 
   useEffect(() => {

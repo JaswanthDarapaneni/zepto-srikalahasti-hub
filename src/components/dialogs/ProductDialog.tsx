@@ -30,8 +30,8 @@ export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDi
     name: '',
     price: 0,
     unit: 'kg',
-    category: 'Grocery',
-    shopId: 'shop1',
+    category_id: 'cat1',
+    shop_id: 'shop1',
     image: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf',
     stock: 100,
     description: '',
@@ -108,8 +108,8 @@ export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDi
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="category">Category</Label>
-              <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+              <Label htmlFor="category_id">Category</Label>
+              <Select value={formData.category_id} onValueChange={(value) => setFormData({ ...formData, category_id: value })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
