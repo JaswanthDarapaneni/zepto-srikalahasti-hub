@@ -5,6 +5,7 @@ import { useData } from "@/hooks/useData";
 import { useFilteredData } from "@/hooks/useFilteredData";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import CRUDTable from "@/components/CRUDTable";
+import { useRoleAccess } from "@/hooks/useRoleAccess";
 
 interface Order {
   id: string;
@@ -18,6 +19,7 @@ interface Order {
 }
 
 const Orders = () => {
+  const { canAccessOrders } = useRoleAccess();
   const { data: allOrders, loading } = useData<Order[]>("/src/data/orders.json");
   const filteredOrders = useFilteredData(allOrders, { 
     filterByUserId: true, 
@@ -133,8 +135,10 @@ const Orders = () => {
         columns={columns}
         title="Order Management"
         onAdd={() => {}}
+        rowsPerPage={10}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        permissions={canAccessOrders}
         loading={loading}
         searchPlaceholder="Search orders..."
       />

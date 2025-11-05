@@ -13,6 +13,7 @@ interface CRUD {
   update: boolean;
   delete: boolean;
   view: boolean;
+  add: boolean;
 }
 
 interface RolePermissions {
@@ -31,9 +32,10 @@ interface RolePermissions {
 }
 
 // Common permission presets
-const fullCRUD: CRUD = { read: true, update: true, delete: true, view: true };
-const readOnlyCRUD: CRUD = { read: true, update: false, delete: false, view: true };
-const noAccessCRUD: CRUD = { read: false, update: false, delete: false, view: false };
+const fullCRUD: CRUD = { read: true, update: true, delete: true, view: true, add: true };
+const readOnlyCRUD: CRUD = { read: true, update: false, delete: false, view: true, add: false };
+const noAccessCRUD: CRUD = { read: false, update: false, delete: false, view: false, add: false };
+const NoDeleteAccess: CRUD = { read: true, update: true, delete: false, view: true, add: false };
 
 // Role-based permissions
 const rolePermissions: Record<Role, RolePermissions> = {
@@ -72,16 +74,16 @@ const rolePermissions: Record<Role, RolePermissions> = {
   // 🏪 Shop Owner — Manage products, orders, and shop analytics
   shop_owner: {
     canAccessUsers: noAccessCRUD,
-    canAccessShops: fullCRUD,
+    canAccessShops: NoDeleteAccess,
     canAccessProducts: fullCRUD,
-    canAccessOrders: fullCRUD,
+    canAccessOrders: NoDeleteAccess,
     canAccessPayments: readOnlyCRUD,
     canAccessTickets: readOnlyCRUD,
     canAccessAnalytics: fullCRUD,
     canAccessSettings: noAccessCRUD,
     canAccessDelivery: noAccessCRUD,
     canAccessMap: noAccessCRUD,
-    canAccessNotifications: readOnlyCRUD,
+    canAccessNotifications: fullCRUD,
     canAccessLogs: noAccessCRUD,
   },
 

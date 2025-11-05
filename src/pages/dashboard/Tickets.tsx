@@ -6,6 +6,7 @@ import { useFilteredData } from "@/hooks/useFilteredData";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import CRUDTable from "@/components/CRUDTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRoleAccess } from "@/hooks/useRoleAccess";
 
 interface Ticket {
   id: string;
@@ -27,7 +28,7 @@ const Tickets = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>();
   const [localTickets, setLocalTickets] = useState<Ticket[]>(filteredTickets);
-
+  const {canAccessTickets} = useRoleAccess(); 
   const getUserName = (userId: string) => {
     const user = users?.find(u => u.id === userId);
     return user ? user.name : userId;
@@ -175,7 +176,9 @@ const Tickets = () => {
         onAdd={handleAdd}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        permissions={canAccessTickets}
         loading={loading}
+        rowsPerPage={10}
         searchPlaceholder="Search tickets..."
       />
 

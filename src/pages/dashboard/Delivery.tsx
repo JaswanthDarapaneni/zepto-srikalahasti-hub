@@ -1,10 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { MapPin, Package } from "lucide-react";
 import { useData } from "@/hooks/useData";
 import { useFilteredData } from "@/hooks/useFilteredData";
 import CRUDTable from "@/components/CRUDTable";
+import { useRoleAccess } from "@/hooks/useRoleAccess";
 
 interface Order {
   id: string;
@@ -16,6 +15,7 @@ interface Order {
 }
 
 const Delivery = () => {
+  const {canAccessDelivery} = useRoleAccess();
   const { data: allOrders, loading } = useData<Order[]>("/src/data/orders.json");
   const filteredOrders = useFilteredData(allOrders, { filterByDeliveryAgent: true });
   const deliveryOrders = filteredOrders.filter(
@@ -92,10 +92,12 @@ const Delivery = () => {
       <CRUDTable
         data={deliveryOrders}
         columns={columns}
+        permissions={canAccessDelivery}
         title="Delivery Orders"
         onAdd={() => {}}
         onEdit={() => {}}
         onDelete={() => {}}
+        rowsPerPage={10}
         loading={loading}
         searchPlaceholder="Search delivery orders..."
       />

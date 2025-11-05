@@ -1,9 +1,10 @@
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UserDialog } from "@/components/dialogs/UserDialog";
 import { useData } from "@/hooks/useData";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import CRUDTable from "@/components/CRUDTable";
+import { useRoleAccess } from "@/hooks/useRoleAccess";
 
 interface User {
   id: string;
@@ -18,9 +19,16 @@ interface User {
 const Users = () => {
   const { data: users, loading } = useData<User[]>("/src/data/users.json");
   const { addLog } = useActivityLog();
+  const { canAccessUsers } = useRoleAccess();
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | undefined>();
-  const [localUsers, setLocalUsers] = useState<User[]>(users || []);
+  const [localUsers, setLocalUsers] = useState<User[]>([]);
+
+  // 🔄 Sync fetched users into local state
+  useEffect(() => {
+    if (users) setLocalUsers(users);
+  }, [users]);
 
   const handleAdd = () => {
     setSelectedUser(undefined);
@@ -34,48 +42,39 @@ const Users = () => {
 
   const handleSave = (user: User) => {
     if (selectedUser) {
-      setLocalUsers(localUsers.map((u) => (u.id === user.id ? user : u)));
-      addLog('update', 'users', `Updated user: ${user.name}`);
+      setLocalUsers((prev) => prev.map((u) => (u.id === user.id ? user : u)));
+      addLog("update", "users", `Updated user: ${user.name}`);
     } else {
-      setLocalUsers([...localUsers, user]);
-      addLog('create', 'users', `Created user: ${user.name}`);
+      setLocalUsers((prev) => [...prev, user]);
+      addLog("create", "users", `Created user: ${user.name}`);
     }
     setDialogOpen(false);
     setSelectedUser(undefined);
   };
 
   const handleDelete = (user: User) => {
-    setLocalUsers(localUsers.filter((u) => u.id !== user.id));
-    addLog('delete', 'users', `Deleted user: ${user.name}`);
+    setLocalUsers((prev) => prev.filter((u) => u.id !== user.id));
+    addLog("delete", "users", `Deleted user: ${user.name}`);
   };
 
   const columns = [
     {
-      key: 'name',
-      label: 'Name',
-      render: (value: string) => <span className="font-medium">{value}</span>
+      key: "name",
+      label: "Name",
+      render: (v: string) => <span className="font-medium">{v}</span>,
     },
+    { key: "email", label: "Email" },
+    { key: "phone", label: "Phone" },
     {
-      key: 'email',
-      label: 'Email'
-    },
-    {
-      key: 'phone',
-      label: 'Phone'
-    },
-    {
-      key: 'role',
-      label: 'Role',
-      render: (value: string) => (
-        <Badge variant={value === 'admin' ? 'default' : 'secondary'}>
-          {value.replace('_', ' ')}
+      key: "role",
+      label: "Role",
+      render: (v: string) => (
+        <Badge variant={v === "admin" ? "default" : "secondary"}>
+          {v.replace("_", " ")}
         </Badge>
-      )
+      ),
     },
-    {
-      key: 'address',
-      label: 'Address'
-    }
+    { key: "address", label: "Address" },
   ];
 
   return (
@@ -92,7 +91,9 @@ const Users = () => {
         onAdd={handleAdd}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        permissions={canAccessUsers}
         loading={loading}
+        rowsPerPage={10}
         searchPlaceholder="Search users..."
       />
 

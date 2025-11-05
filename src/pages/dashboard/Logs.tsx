@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import CRUDTable from "@/components/CRUDTable";
+import { useRoleAccess } from "@/hooks/useRoleAccess";
+
 
 interface ActivityLog {
   id: string;
@@ -14,7 +16,7 @@ interface ActivityLog {
 
 const Logs = () => {
   const [logs] = useLocalStorage<ActivityLog[]>('activity_logs', []);
-
+const {canAccessSettings} = useRoleAccess();
   const getActionBadge = (action: string) => {
     const colors: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
       create: "default",
@@ -75,6 +77,8 @@ const Logs = () => {
         onAdd={() => {}}
         onEdit={() => {}}
         onDelete={() => {}}
+        rowsPerPage={10}
+        permissions={canAccessSettings}
         searchPlaceholder="Search logs..."
       />
     </div>

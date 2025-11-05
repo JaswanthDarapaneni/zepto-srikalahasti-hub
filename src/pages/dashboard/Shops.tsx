@@ -1,15 +1,14 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2 } from "lucide-react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { useActivityLog } from "@/hooks/useActivityLog";
+import { useState, useEffect } from "react";
 import { ShopDialog } from "@/components/dialogs/ShopDialog";
-import { useState } from "react";
+import { useData } from "@/hooks/useData";
+import { useActivityLog } from "@/hooks/useActivityLog";
+import CRUDTable from "@/components/CRUDTable";
 import { toast } from "sonner";
-import shopsData from "@/data/shops.json";
+import { useRoleAccess } from "@/hooks/useRoleAccess";
+import { useAuth } from "@/contexts/AuthContext";
+import { useFilteredData } from "@/hooks/useFilteredData";
+
 
 interface Shop {
   id: string;
@@ -26,26 +25,22 @@ interface Shop {
 }
 
 const Shops = () => {
-  const [shops, setShops] = useLocalStorage<Shop[]>('shops', shopsData);
+  const { data: shops, loading } = useData<Shop[]>("/src/data/shops.json"); // ✅ Make sure file is in /public/data
   const { addLog } = useActivityLog();
+  const {canAccessShops} = useRoleAccess();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedShop, setSelectedShop] = useState<Shop | undefined>();
-  const [shopToDelete, setShopToDelete] = useState<string | null>(null);
+  const [localShops, setLocalShops] = useState<Shop[]>([]);
 
-  const handleSave = (shop: Shop) => {
-    const existingIndex = shops.findIndex((s) => s.id === shop.id);
-    if (existingIndex >= 0) {
-      const updated = [...shops];
-      updated[existingIndex] = shop;
-      setShops(updated);
-      addLog('update', 'shops', `Updated shop: ${shop.name}`);
-      toast.success('Shop updated successfully');
-    } else {
-      setShops([...shops, shop]);
-      addLog('create', 'shops', `Created new shop: ${shop.name}`);
-      toast.success('Shop created successfully');
-    }
+  // 🔄 Sync local data with fetched data
+  useEffect(() => {
+    if (shops) setLocalShops(shops);
+  }, [shops]);
+
+  // 🧩 CRUD Handlers
+  const handleAdd = () => {
+    setSelectedShop(undefined);
+    setDialogOpen(true);
   };
 
   const handleEdit = (shop: Shop) => {
@@ -53,85 +48,92 @@ const Shops = () => {
     setDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    setShopToDelete(id);
-    setDeleteDialogOpen(true);
+  const handleSave = (shop: Shop) => {
+    if (selectedShop) {
+      // ✏️ Update
+      setLocalShops((prev) => prev.map((s) => (s.id === shop.id ? shop : s)));
+      addLog("update", "shops", `Updated shop: ${shop.name}`);
+      toast.success("Shop updated successfully");
+    } else {
+      // ➕ Add
+      setLocalShops((prev) => [...prev, shop]);
+      addLog("create", "shops", `Created new shop: ${shop.name}`);
+      toast.success("Shop created successfully");
+    }
+    setDialogOpen(false);
+    setSelectedShop(undefined);
   };
 
-  const confirmDelete = () => {
-    if (shopToDelete) {
-      const shop = shops.find((s) => s.id === shopToDelete);
-      setShops(shops.filter((s) => s.id !== shopToDelete));
-      addLog('delete', 'shops', `Deleted shop: ${shop?.name}`);
-      toast.success('Shop deleted successfully');
-      setShopToDelete(null);
-    }
-    setDeleteDialogOpen(false);
+  const handleDelete = (shop: Shop) => {
+    setLocalShops((prev) => prev.filter((s) => s.id !== shop.id));
+    addLog("delete", "shops", `Deleted shop: ${shop.name}`);
+    toast.success("Shop deleted successfully");
   };
+
+  // 💡 Table Columns
+  const columns = [
+    {
+      key: "name",
+      label: "Shop",
+      render: (_: any, shop: Shop) => (
+        <div className="flex items-center gap-3">
+          <img
+            src={shop.image}
+            alt={shop.name}
+            className="h-10 w-10 rounded object-cover"
+          />
+          <span className="font-medium">{shop.name}</span>
+        </div>
+      ),
+    },
+    {
+      key: "category",
+      label: "Category",
+    },
+    {
+      key: "address",
+      label: "Address",
+      render: (value: string) => (
+        <span className="max-w-xs truncate block">{value}</span>
+      ),
+    },
+    {
+      key: "rating",
+      label: "Rating",
+      render: (value: number) => `${value} ⭐`,
+    },
+    {
+      key: "isOpen",
+      label: "Status",
+      render: (value: boolean) => (
+        <Badge variant={value ? "default" : "secondary"}>
+          {value ? "Open" : "Closed"}
+        </Badge>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold">Shops Management</h2>
-          <p className="text-muted-foreground">Manage all shops and their details</p>
-        </div>
-        <Button 
-          className="gap-2"
-          onClick={() => {
-            setSelectedShop(undefined);
-            setDialogOpen(true);
-          }}
-        >
-          <Plus className="h-4 w-4" />
-          Add Shop
-        </Button>
+      <div>
+        <h2 className="text-3xl font-bold">Shops</h2>
+        <p className="text-muted-foreground">
+          Manage all registered shops and their details
+        </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Shops ({shops.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Shop Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {shops.map((shop) => (
-                <TableRow key={shop.id}>
-                  <TableCell className="font-medium">{shop.name}</TableCell>
-                  <TableCell>{shop.category}</TableCell>
-                  <TableCell className="max-w-xs truncate">{shop.address}</TableCell>
-                  <TableCell>{shop.rating} ⭐</TableCell>
-                  <TableCell>
-                    <Badge variant={shop.isOpen ? "default" : "secondary"}>
-                      {shop.isOpen ? "Open" : "Closed"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button size="icon" variant="ghost" onClick={() => handleEdit(shop)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button size="icon" variant="ghost" onClick={() => handleDelete(shop.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <CRUDTable
+        data={localShops}
+        columns={columns}
+        title="Shops Management"
+        onAdd={handleAdd}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        permissions={canAccessShops}
+        loading={loading}
+        rowsPerPage={10}
+        searchPlaceholder="Search shops..."
+      />
 
       <ShopDialog
         open={dialogOpen}
@@ -139,21 +141,6 @@ const Shops = () => {
         shop={selectedShop}
         onSave={handleSave}
       />
-
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the shop.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
