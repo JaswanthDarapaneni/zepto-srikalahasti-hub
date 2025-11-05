@@ -1,7 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import CRUDTable from "@/components/CRUDTable";
 
 interface ActivityLog {
   id: string;
@@ -26,6 +25,42 @@ const Logs = () => {
     return colors[action] || "secondary";
   };
 
+  const columns = [
+    {
+      key: 'timestamp',
+      label: 'Timestamp',
+      render: (value: string) => (
+        <span className="font-mono text-sm">
+          {new Date(value).toLocaleString()}
+        </span>
+      )
+    },
+    {
+      key: 'userName',
+      label: 'User',
+      render: (value: string) => <span className="font-medium">{value}</span>
+    },
+    {
+      key: 'action',
+      label: 'Action',
+      render: (value: string) => (
+        <Badge variant={getActionBadge(value)}>
+          {value.toUpperCase()}
+        </Badge>
+      )
+    },
+    {
+      key: 'module',
+      label: 'Module',
+      render: (value: string) => <Badge variant="outline">{value}</Badge>
+    },
+    {
+      key: 'details',
+      label: 'Details',
+      render: (value: string) => <span className="max-w-md truncate">{value}</span>
+    }
+  ];
+
   return (
     <div className="space-y-6">
       <div>
@@ -33,51 +68,15 @@ const Logs = () => {
         <p className="text-muted-foreground">Track all system activities and user actions</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activities ({logs.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>User</TableHead>
-                <TableHead>Action</TableHead>
-                <TableHead>Module</TableHead>
-                <TableHead>Details</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {logs.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground">
-                    No activity logs yet
-                  </TableCell>
-                </TableRow>
-              ) : (
-                logs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell className="font-mono text-sm">
-                      {new Date(log.timestamp).toLocaleString()}
-                    </TableCell>
-                    <TableCell className="font-medium">{log.userName}</TableCell>
-                    <TableCell>
-                      <Badge variant={getActionBadge(log.action)}>
-                        {log.action.toUpperCase()}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{log.module}</Badge>
-                    </TableCell>
-                    <TableCell className="max-w-md truncate">{log.details}</TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <CRUDTable
+        data={logs}
+        columns={columns}
+        title={`Recent Activities (${logs.length})`}
+        onAdd={() => {}}
+        onEdit={() => {}}
+        onDelete={() => {}}
+        searchPlaceholder="Search logs..."
+      />
     </div>
   );
 };

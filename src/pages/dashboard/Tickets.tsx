@@ -1,16 +1,11 @@
-import { useState, useMemo } from 'react';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { useAuth } from '@/contexts/AuthContext';
-import { TableSearch } from '@/components/TableSearch';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Plus, MessageSquare } from "lucide-react";
-import { useActivityLog } from "@/hooks/useActivityLog";
+import { useState } from "react";
 import { TicketDialog } from "@/components/dialogs/TicketDialog";
-import { toast } from "sonner";
-import ticketsData from "@/data/tickets.json";
+import { useData } from "@/hooks/useData";
+import { useFilteredData } from "@/hooks/useFilteredData";
+import { useActivityLog } from "@/hooks/useActivityLog";
+import CRUDTable from "@/components/CRUDTable";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Ticket {
   id: string;
@@ -25,189 +20,170 @@ interface Ticket {
 }
 
 const Tickets = () => {
-  const { user } = useAuth();
-  const [tickets, setTickets] = useLocalStorage<Ticket[]>('tickets', ticketsData);
+  const { data: allTickets, loading } = useData<Ticket[]>("/src/data/tickets.json");
+  const { data: users } = useData<any[]>("/src/data/users.json");
+  const filteredTickets = useFilteredData(allTickets, { filterByUserId: true });
   const { addLog } = useActivityLog();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>();
-  const [dialogMode, setDialogMode] = useState<'create' | 'reply'>('create');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [localTickets, setLocalTickets] = useState<Ticket[]>(filteredTickets);
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-      open: "destructive",
-      in_progress: "default",
-      closed: "secondary",
-    };
-    return variants[status] || "secondary";
+  const getUserName = (userId: string) => {
+    const user = users?.find(u => u.id === userId);
+    return user ? user.name : userId;
   };
 
-  const getPriorityBadge = (priority: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-      high: "destructive",
-      urgent: "destructive",
-      medium: "default",
-      low: "outline",
-    };
-    return variants[priority] || "outline";
-  };
-
-  const handleSave = (ticket: Ticket) => {
-    const existingIndex = tickets.findIndex((t) => t.id === ticket.id);
-    if (existingIndex >= 0) {
-      const updated = [...tickets];
-      updated[existingIndex] = ticket;
-      setTickets(updated);
-      addLog('update', 'tickets', `Updated ticket #${ticket.id}`);
-      toast.success('Ticket updated successfully');
-    } else {
-      setTickets([...tickets, ticket]);
-      addLog('create', 'tickets', `Created new ticket: ${ticket.subject}`);
-      toast.success('Ticket created successfully');
-    }
-  };
-
-  const handleReply = (ticket: Ticket) => {
-    setSelectedTicket(ticket);
-    setDialogMode('reply');
+  const handleAdd = () => {
+    setSelectedTicket(undefined);
     setDialogOpen(true);
   };
 
-  const filteredTickets = useMemo(() => {
-    return tickets.filter(ticket =>
-      ticket.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.user_id.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [tickets, searchQuery]);
+  const handleEdit = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    setDialogOpen(true);
+  };
+
+  const handleSave = (ticket: Ticket) => {
+    if (selectedTicket) {
+      setLocalTickets(localTickets.map((t) => (t.id === ticket.id ? ticket : t)));
+      addLog('update', 'tickets', `Updated ticket: ${ticket.subject}`);
+    } else {
+      setLocalTickets([...localTickets, ticket]);
+      addLog('create', 'tickets', `Created ticket: ${ticket.subject}`);
+    }
+    setDialogOpen(false);
+    setSelectedTicket(undefined);
+  };
+
+  const handleDelete = (ticket: Ticket) => {
+    setLocalTickets(localTickets.filter((t) => t.id !== ticket.id));
+    addLog('delete', 'tickets', `Deleted ticket: ${ticket.subject}`);
+  };
+
+  const columns = [
+    {
+      key: 'id',
+      label: 'ID',
+      render: (value: string) => <span className="font-mono">#{value}</span>
+    },
+    {
+      key: 'user_id',
+      label: 'Raised By',
+      render: (value: string) => (
+        <span className="font-medium">{getUserName(value)}</span>
+      )
+    },
+    {
+      key: 'subject',
+      label: 'Subject'
+    },
+    {
+      key: 'category',
+      label: 'Category',
+      render: (value: string) => (
+        <Badge variant="outline">{value}</Badge>
+      )
+    },
+    {
+      key: 'priority',
+      label: 'Priority',
+      render: (value: string) => {
+        const variants: Record<string, "default" | "secondary" | "destructive"> = {
+          low: "secondary",
+          medium: "default",
+          high: "destructive",
+          urgent: "destructive"
+        };
+        return <Badge variant={variants[value]}>{value}</Badge>;
+      }
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (value: string) => {
+        const variants: Record<string, "default" | "secondary" | "outline"> = {
+          open: "default",
+          in_progress: "secondary",
+          resolved: "outline"
+        };
+        return <Badge variant={variants[value]}>{value.replace('_', ' ')}</Badge>;
+      }
+    },
+    {
+      key: 'createdAt',
+      label: 'Created',
+      render: (value: string) => new Date(value).toLocaleDateString()
+    }
+  ];
+
+  const stats = {
+    total: localTickets.length,
+    open: localTickets.filter(t => t.status === 'open').length,
+    inProgress: localTickets.filter(t => t.status === 'in_progress').length,
+    resolved: localTickets.filter(t => t.status === 'resolved').length
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold">Support Tickets</h2>
-          <p className="text-muted-foreground">Manage customer support tickets</p>
-        </div>
-        <Button 
-          className="gap-2"
-          onClick={() => {
-            setSelectedTicket(undefined);
-            setDialogMode('create');
-            setDialogOpen(true);
-          }}
-        >
-          <Plus className="h-4 w-4" />
-          Create Ticket
-        </Button>
+      <div>
+        <h2 className="text-3xl font-bold">Support Tickets</h2>
+        <p className="text-muted-foreground">Manage customer support requests</p>
       </div>
 
-      <div className="mb-4">
-        <TableSearch
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Search by subject, category, status, or user ID..."
-        />
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-4">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Open Tickets
-            </CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Tickets</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">
-              {tickets.filter((t) => t.status === "open").length}
-            </p>
+            <p className="text-2xl font-bold">{stats.total}</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              In Progress
-            </CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Open</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">
-              {tickets.filter((t) => t.status === "in_progress").length}
-            </p>
+            <p className="text-2xl font-bold">{stats.open}</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Closed
-            </CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">In Progress</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">
-              {tickets.filter((t) => t.status === "closed").length}
-            </p>
+            <p className="text-2xl font-bold">{stats.inProgress}</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Resolved</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{stats.resolved}</p>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Tickets ({filteredTickets.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Ticket ID</TableHead>
-                <TableHead>Subject</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredTickets.map((ticket) => (
-                <TableRow key={ticket.id}>
-                  <TableCell className="font-mono text-sm">#{ticket.id}</TableCell>
-                  <TableCell className="max-w-xs">
-                    <div>
-                      <div className="font-medium truncate">{ticket.subject}</div>
-                      <div className="text-xs text-muted-foreground">By: {ticket.user_id}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{ticket.category}</TableCell>
-                  <TableCell>
-                    <Badge variant={getPriorityBadge(ticket.priority)}>
-                      {ticket.priority}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusBadge(ticket.status)}>
-                      {ticket.status.replace("_", " ")}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{new Date(ticket.createdAt).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <Button size="icon" variant="ghost" onClick={() => handleReply(ticket)}>
-                      <MessageSquare className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <CRUDTable
+        data={localTickets}
+        columns={columns}
+        title="Ticket Management"
+        onAdd={handleAdd}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        loading={loading}
+        searchPlaceholder="Search tickets..."
+      />
 
       <TicketDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         ticket={selectedTicket}
         onSave={handleSave}
-        mode={dialogMode}
       />
     </div>
   );

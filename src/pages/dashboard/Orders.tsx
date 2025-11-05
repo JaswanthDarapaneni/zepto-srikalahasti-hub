@@ -1,12 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useState } from "react";
+import { useData } from "@/hooks/useData";
+import { useFilteredData } from "@/hooks/useFilteredData";
 import { useActivityLog } from "@/hooks/useActivityLog";
-import { toast } from "sonner";
-import ordersData from "@/data/orders.json";
+import CRUDTable from "@/components/CRUDTable";
 
 interface Order {
   id: string;
@@ -14,97 +12,132 @@ interface Order {
   total: number;
   status: string;
   payment_status: string;
+  payment_method?: string;
   createdAt: string;
+  delivery_agent_id?: string;
 }
 
 const Orders = () => {
-  const [orders, setOrders] = useLocalStorage<Order[]>('orders', ordersData);
+  const { data: allOrders, loading } = useData<Order[]>("/src/data/orders.json");
+  const filteredOrders = useFilteredData(allOrders, { 
+    filterByUserId: true, 
+    filterByDeliveryAgent: true 
+  });
   const { addLog } = useActivityLog();
+  const [localOrders, setLocalOrders] = useState<Order[]>(filteredOrders);
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-      placed: "secondary",
-      packed: "outline",
-      out_for_delivery: "default",
-      delivered: "default",
-    };
-    return variants[status] || "secondary";
+  const handleEdit = (order: Order) => {
+    console.log('Edit order:', order);
   };
 
-  const formatStatus = (status: string) => {
-    return status.split("_").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+  const handleDelete = (order: Order) => {
+    setLocalOrders(localOrders.filter(o => o.id !== order.id));
+    addLog('delete', 'orders', `Deleted order #${order.id}`);
   };
 
-  const handleStatusChange = (orderId: string, newStatus: string) => {
-    const updated = orders.map((order) =>
-      order.id === orderId ? { ...order, status: newStatus } : order
-    );
-    setOrders(updated);
-    addLog('update', 'orders', `Updated order #${orderId} status to ${formatStatus(newStatus)}`);
-    toast.success('Order status updated');
+  const columns = [
+    {
+      key: 'id',
+      label: 'Order ID',
+      render: (value: string) => <span className="font-mono">#{value}</span>
+    },
+    {
+      key: 'user_id',
+      label: 'Customer ID'
+    },
+    {
+      key: 'total',
+      label: 'Total',
+      render: (value: number) => `$${value.toFixed(2)}`
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (value: string) => {
+        const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+          pending: "outline",
+          confirmed: "secondary",
+          packed: "default",
+          out_for_delivery: "default",
+          delivered: "secondary",
+          cancelled: "destructive"
+        };
+        return <Badge variant={variants[value] || "outline"}>{value.replace('_', ' ')}</Badge>;
+      }
+    },
+    {
+      key: 'payment_method',
+      label: 'Payment'
+    },
+    {
+      key: 'createdAt',
+      label: 'Date',
+      render: (value: string) => new Date(value).toLocaleDateString()
+    }
+  ];
+
+  const stats = {
+    total: localOrders.length,
+    pending: localOrders.filter(o => o.status === 'pending').length,
+    delivered: localOrders.filter(o => o.status === 'delivered').length,
+    revenue: localOrders.reduce((sum, o) => sum + o.total, 0)
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold">Orders Management</h2>
-        <p className="text-muted-foreground">Track and manage all orders</p>
+        <h2 className="text-3xl font-bold">Orders</h2>
+        <p className="text-muted-foreground">Manage customer orders and deliveries</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Orders ({orders.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Payment</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium">#{order.id}</TableCell>
-                  <TableCell>₹{order.total}</TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusBadge(order.status)}>
-                      {formatStatus(order.status)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={order.payment_status === "paid" ? "default" : "outline"}>
-                      {order.payment_status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <Select
-                      value={order.status}
-                      onValueChange={(value) => handleStatusChange(order.id, value)}
-                    >
-                      <SelectTrigger className="w-[160px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="placed">Placed</SelectItem>
-                        <SelectItem value="packed">Packed</SelectItem>
-                        <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
-                        <SelectItem value="delivered">Delivered</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Orders</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{stats.total}</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Pending</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{stats.pending}</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Delivered</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{stats.delivered}</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Revenue</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">${stats.revenue.toFixed(2)}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <CRUDTable
+        data={localOrders}
+        columns={columns}
+        title="Order Management"
+        onAdd={() => {}}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        loading={loading}
+        searchPlaceholder="Search orders..."
+      />
     </div>
   );
 };

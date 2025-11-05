@@ -1,14 +1,58 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Package } from "lucide-react";
-import orders from "@/data/orders.json";
+import { useData } from "@/hooks/useData";
+import { useFilteredData } from "@/hooks/useFilteredData";
+import CRUDTable from "@/components/CRUDTable";
+
+interface Order {
+  id: string;
+  user_id: string;
+  total: number;
+  status: string;
+  address: string;
+  delivery_agent_id?: string;
+}
 
 const Delivery = () => {
-  const deliveryOrders = orders.filter(
+  const { data: allOrders, loading } = useData<Order[]>("/src/data/orders.json");
+  const filteredOrders = useFilteredData(allOrders, { filterByDeliveryAgent: true });
+  const deliveryOrders = filteredOrders.filter(
     (order) => order.status === "out_for_delivery" || order.status === "packed"
   );
+
+  const columns = [
+    {
+      key: 'id',
+      label: 'Order ID',
+      render: (value: string) => <span className="font-mono">#{value}</span>
+    },
+    {
+      key: 'address',
+      label: 'Address',
+      render: (value: string) => <span className="max-w-xs truncate">{value}</span>
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (value: string) => (
+        <Badge variant={value === "out_for_delivery" ? "default" : "outline"}>
+          {value.replace("_", " ")}
+        </Badge>
+      )
+    },
+    {
+      key: 'delivery_agent_id',
+      label: 'Agent',
+      render: (value: string) => 
+        value ? (
+          <Badge variant="secondary">{value}</Badge>
+        ) : (
+          <span className="text-muted-foreground">Not assigned</span>
+        )
+    }
+  ];
 
   return (
     <div className="space-y-6">
@@ -26,7 +70,7 @@ const Delivery = () => {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">
-              {orders.filter((o) => o.status === "out_for_delivery").length}
+              {(allOrders || []).filter((o) => o.status === "out_for_delivery").length}
             </p>
           </CardContent>
         </Card>
@@ -39,60 +83,22 @@ const Delivery = () => {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">
-              {orders.filter((o) => o.status === "packed" && !o.delivery_agent_id).length}
+              {(allOrders || []).filter((o) => o.status === "packed" && !o.delivery_agent_id).length}
             </p>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Delivery Orders</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Agent</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {deliveryOrders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium">#{order.id}</TableCell>
-                  <TableCell className="max-w-xs truncate">{order.address}</TableCell>
-                  <TableCell>
-                    <Badge variant={order.status === "out_for_delivery" ? "default" : "outline"}>
-                      {order.status.replace("_", " ")}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {order.delivery_agent_id ? (
-                      <Badge variant="secondary">{order.delivery_agent_id}</Badge>
-                    ) : (
-                      <span className="text-muted-foreground">Not assigned</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button size="icon" variant="ghost">
-                        <MapPin className="h-4 w-4" />
-                      </Button>
-                      <Button size="icon" variant="ghost">
-                        <Package className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <CRUDTable
+        data={deliveryOrders}
+        columns={columns}
+        title="Delivery Orders"
+        onAdd={() => {}}
+        onEdit={() => {}}
+        onDelete={() => {}}
+        loading={loading}
+        searchPlaceholder="Search delivery orders..."
+      />
     </div>
   );
 };
