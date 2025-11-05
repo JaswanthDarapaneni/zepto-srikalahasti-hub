@@ -1,0 +1,50 @@
+[
+  {
+    "id": "cat1",
+    "name": "Groceries",
+    "slug": "groceries",
+    "icon": "🛒",
+    "image": "https://images.unsplash.com/photo-1543168256-418811576931?w=400",
+    "description": "Fresh groceries delivered in minutes"
+  },
+  {
+    "id": "cat2",
+    "name": "Vegetables",
+    "slug": "vegetables",
+    "icon": "🥬",
+    "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400",
+    "description": "Farm-fresh vegetables"
+  },
+  {
+    "id": "cat3",
+    "name": "Fruits",
+    "slug": "fruits",
+    "icon": "🍎",
+    "image": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=400",
+    "description": "Sweet and fresh fruits"
+  },
+  {
+    "id": "cat4",
+    "name": "Dairy",
+    "slug": "dairy",
+    "icon": "🥛",
+    "image": "https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=400",
+    "description": "Milk, cheese, and dairy products"
+  },
+  {
+    "id": "cat5",
+    "name": "Snacks",
+    "slug": "snacks",
+    "icon": "🍿",
+    "image": "https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=400",
+    "description": "Your favorite snacks"
+  },
+  {
+    "id": "cat6",
+    "name": "Beverages",
+    "slug": "beverages",
+    "icon": "🥤",
+    "image": "https://images.unsplash.com/photo-1437418747212-8d9709afab22?w=400",
+    "description": "Cold drinks and beverages"
+  }
+]

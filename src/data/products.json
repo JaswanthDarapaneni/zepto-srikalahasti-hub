@@ -1,0 +1,68 @@
+[
+  {
+    "id": "prod1",
+    "name": "Fresh Tomatoes",
+    "category_id": "cat2",
+    "shop_id": "shop2",
+    "price": 40,
+    "unit": "kg",
+    "image": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400",
+    "stock": 50,
+    "description": "Farm fresh red tomatoes"
+  },
+  {
+    "id": "prod2",
+    "name": "Organic Milk",
+    "category_id": "cat4",
+    "shop_id": "shop1",
+    "price": 60,
+    "unit": "liter",
+    "image": "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400",
+    "stock": 30,
+    "description": "Pure organic milk"
+  },
+  {
+    "id": "prod3",
+    "name": "Basmati Rice",
+    "category_id": "cat1",
+    "shop_id": "shop1",
+    "price": 180,
+    "unit": "kg",
+    "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400",
+    "stock": 100,
+    "description": "Premium quality basmati rice"
+  },
+  {
+    "id": "prod4",
+    "name": "Fresh Apples",
+    "category_id": "cat3",
+    "shop_id": "shop4",
+    "price": 150,
+    "unit": "kg",
+    "image": "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400",
+    "stock": 40,
+    "description": "Crispy red apples"
+  },
+  {
+    "id": "prod5",
+    "name": "Potato Chips",
+    "category_id": "cat5",
+    "shop_id": "shop5",
+    "price": 20,
+    "unit": "pack",
+    "image": "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400",
+    "stock": 200,
+    "description": "Crunchy potato chips"
+  },
+  {
+    "id": "prod6",
+    "name": "Cold Coffee",
+    "category_id": "cat6",
+    "shop_id": "shop5",
+    "price": 80,
+    "unit": "bottle",
+    "image": "https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?w=400",
+    "stock": 50,
+    "description": "Refreshing cold coffee"
+  }
+]
