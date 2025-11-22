@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { secureGetItem, secureSetItem } from "@/lib/utils";
+import { useState, useEffect } from "react";
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
-      const item = window.localStorage.getItem(key);
+      // const item = window.localStorage.getItem(key);
+      const item = secureGetItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
       console.error(error);
@@ -13,14 +15,18 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 
   const setValue = (value: T | ((val: T) => T)) => {
     try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      const valueToStore =
+        value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
-      
+      secureSetItem(key, valueToStore);
+      // window.localStorage.setItem(key, JSON.stringify(valueToStore));
+
       // Dispatch custom event for cross-component updates
-      window.dispatchEvent(new CustomEvent('localStorageChange', { 
-        detail: { key, value: valueToStore } 
-      }));
+      window.dispatchEvent(
+        new CustomEvent("localStorageChange", {
+          detail: { key, value: valueToStore },
+        })
+      );
     } catch (error) {
       console.error(error);
     }
@@ -33,8 +39,15 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
       }
     };
 
-    window.addEventListener('localStorageChange', handleStorageChange as EventListener);
-    return () => window.removeEventListener('localStorageChange', handleStorageChange as EventListener);
+    window.addEventListener(
+      "localStorageChange",
+      handleStorageChange as EventListener
+    );
+    return () =>
+      window.removeEventListener(
+        "localStorageChange",
+        handleStorageChange as EventListener
+      );
   }, [key]);
 
   return [storedValue, setValue] as const;

@@ -1,3 +1,4 @@
+import { secureGetItem, secureSetItem } from '@/lib/utils';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface ThemeContextType {
@@ -9,12 +10,15 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    const saved = localStorage.getItem('theme');
+    
+    // const saved = localStorage.getItem('theme');
+    const saved = secureGetItem("theme");
     return (saved as 'light' | 'dark') || 'light';
   });
 
   useEffect(() => {
-    localStorage.setItem('theme', theme);
+    secureSetItem('theme', theme)
+    // localStorage.setItem('theme', theme);
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 

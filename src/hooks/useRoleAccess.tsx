@@ -1,12 +1,19 @@
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from "@/contexts/AuthContext";
+import { secureGetItem } from "@/lib/utils";
 
 type Role =
-  | 'admin'
-  | 'manager'
-  | 'shop_owner'
-  | 'delivery_agent'
-  | 'support'
-  | 'customer';
+  | "admin"
+  | "manager"
+  | "shop_owner"
+  | "delivery_agent"
+  | "support"
+  | "customer";
+
+
+interface RoleAccess {
+  role: Role;
+  permissions: Record<string, CRUD>;
+}
 
 interface CRUD {
   read: boolean;
@@ -14,6 +21,15 @@ interface CRUD {
   delete: boolean;
   view: boolean;
   add: boolean;
+}
+
+interface PermissionDTO {
+  module: string;
+  canRead: boolean;
+  canAdd: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+  canView: boolean;
 }
 
 interface RolePermissions {
@@ -29,49 +45,58 @@ interface RolePermissions {
   canAccessMap: CRUD;
   canAccessNotifications: CRUD;
   canAccessLogs: CRUD;
+  canAccessPermission: CRUD;
 }
 
-// Common permission presets
-const fullCRUD: CRUD = { read: true, update: true, delete: true, view: true, add: true };
-const readOnlyCRUD: CRUD = { read: true, update: false, delete: false, view: true, add: false };
-const noAccessCRUD: CRUD = { read: false, update: false, delete: false, view: false, add: false };
-const NoDeleteAccess: CRUD = { read: true, update: true, delete: false, view: true, add: false };
+// ---- Predefined Defaults (fallback) ----
+const fullCRUD: CRUD = {
+  read: true,
+  update: true,
+  delete: true,
+  view: true,
+  add: true,
+};
+const readOnlyCRUD: CRUD = {
+  read: true,
+  update: false,
+  delete: false,
+  view: true,
+  add: false,
+};
+const noAccessCRUD: CRUD = {
+  read: false,
+  update: false,
+  delete: false,
+  view: false,
+  add: false,
+};
+const NoDeleteAccess: CRUD = {
+  read: true,
+  update: true,
+  delete: false,
+  view: true,
+  add: false,
+};
 
-// Role-based permissions
-const rolePermissions: Record<Role, RolePermissions> = {
-  // 👑 Admin — Full access, settings, logs, analytics
-  admin: {
-    canAccessUsers: fullCRUD,
-    canAccessShops: fullCRUD,
-    canAccessProducts: fullCRUD,
+
+// ---- Local fallback roles (used if API doesn’t provide permissions) ----
+const defaultRolePermissions: Record<Role, Record<string, CRUD>> = {
+  customer: {
+    canAccessUsers: noAccessCRUD,
+    canAccessShops: readOnlyCRUD,
+    canAccessProducts: readOnlyCRUD,
     canAccessOrders: fullCRUD,
-    canAccessPayments: fullCRUD,
+    canAccessPayments: readOnlyCRUD,
     canAccessTickets: fullCRUD,
-    canAccessAnalytics: fullCRUD,
-    canAccessSettings: fullCRUD,
-    canAccessDelivery: fullCRUD,
-    canAccessMap: fullCRUD,
+    canAccessAnalytics: noAccessCRUD,
+    canAccessSettings: noAccessCRUD,
+    canAccessDelivery: readOnlyCRUD,
+    canAccessMap: readOnlyCRUD,
     canAccessNotifications: fullCRUD,
-    canAccessLogs: fullCRUD,
+    canAccessLogs: noAccessCRUD,
+    canAccessPermission: noAccessCRUD,
+    canAccessRoles:noAccessCRUD
   },
-
-  // 🧑‍💼 Manager — Manage orders, shops, and inventory
-  manager: {
-    canAccessUsers: readOnlyCRUD,
-    canAccessShops: fullCRUD,
-    canAccessProducts: fullCRUD,
-    canAccessOrders: fullCRUD,
-    canAccessPayments: fullCRUD,
-    canAccessTickets: readOnlyCRUD,
-    canAccessAnalytics: fullCRUD,
-    canAccessSettings: readOnlyCRUD,
-    canAccessDelivery: fullCRUD,
-    canAccessMap: fullCRUD,
-    canAccessNotifications: fullCRUD,
-    canAccessLogs: readOnlyCRUD,
-  },
-
-  // 🏪 Shop Owner — Manage products, orders, and shop analytics
   shop_owner: {
     canAccessUsers: noAccessCRUD,
     canAccessShops: NoDeleteAccess,
@@ -85,9 +110,42 @@ const rolePermissions: Record<Role, RolePermissions> = {
     canAccessMap: noAccessCRUD,
     canAccessNotifications: fullCRUD,
     canAccessLogs: noAccessCRUD,
+    canAccessPermission: noAccessCRUD,
+    canAccessRoles: readOnlyCRUD
+  },
+  admin: {
+    canAccessUsers: fullCRUD,
+    canAccessShops: fullCRUD,
+    canAccessProducts: fullCRUD,
+    canAccessOrders: fullCRUD,
+    canAccessPayments: fullCRUD,
+    canAccessTickets: fullCRUD,
+    canAccessAnalytics: fullCRUD,
+    canAccessSettings: fullCRUD,
+    canAccessDelivery: fullCRUD,
+    canAccessMap: fullCRUD,
+    canAccessNotifications: fullCRUD,
+    canAccessLogs: fullCRUD,
+    canAccessPermission: fullCRUD,
+    canAccessRoles: fullCRUD
+  },
+  manager: {
+    canAccessUsers: readOnlyCRUD,
+    canAccessShops: fullCRUD,
+    canAccessProducts: fullCRUD,
+    canAccessOrders: fullCRUD,
+    canAccessPayments: fullCRUD,
+    canAccessTickets: readOnlyCRUD,
+    canAccessAnalytics: fullCRUD,
+    canAccessSettings: readOnlyCRUD,
+    canAccessDelivery: fullCRUD,
+    canAccessMap: fullCRUD,
+    canAccessNotifications: fullCRUD,
+    canAccessLogs: readOnlyCRUD,
+    canAccessPermission: fullCRUD,
+    canAccessRoles: fullCRUD
   },
 
-  // 🚚 Delivery Agent — View assigned orders, live update location/status
   delivery_agent: {
     canAccessUsers: noAccessCRUD,
     canAccessShops: noAccessCRUD,
@@ -97,13 +155,13 @@ const rolePermissions: Record<Role, RolePermissions> = {
     canAccessTickets: noAccessCRUD,
     canAccessAnalytics: noAccessCRUD,
     canAccessSettings: noAccessCRUD,
-    canAccessDelivery: fullCRUD, // delivery status/location updates
+    canAccessDelivery: fullCRUD,
     canAccessMap: fullCRUD,
     canAccessNotifications: readOnlyCRUD,
     canAccessLogs: noAccessCRUD,
+    canAccessPermission: noAccessCRUD,
+    canAccessRoles: noAccessCRUD
   },
-
-  // 🎧 Support Agent — Handle tickets and feedback
   support: {
     canAccessUsers: readOnlyCRUD,
     canAccessShops: noAccessCRUD,
@@ -117,38 +175,58 @@ const rolePermissions: Record<Role, RolePermissions> = {
     canAccessMap: noAccessCRUD,
     canAccessNotifications: fullCRUD,
     canAccessLogs: noAccessCRUD,
-  },
-
-  // 🛒 Customer — Place orders, view history, reviews
-  customer: {
-    canAccessUsers: noAccessCRUD,
-    canAccessShops: readOnlyCRUD,
-    canAccessProducts: readOnlyCRUD,
-    canAccessOrders: fullCRUD, // placing and viewing orders
-    canAccessPayments: readOnlyCRUD,
-    canAccessTickets: fullCRUD, // support/feedback
-    canAccessAnalytics: noAccessCRUD,
-    canAccessSettings: noAccessCRUD,
-    canAccessDelivery: readOnlyCRUD,
-    canAccessMap: readOnlyCRUD,
-    canAccessNotifications: fullCRUD,
-    canAccessLogs: noAccessCRUD,
+    canAccessPermission: noAccessCRUD,
+    canAccessRoles: noAccessCRUD
   },
 };
 
-export function useRoleAccess() {
+// ----- helper to map PermissionDTO[] → { [module]: CRUD } -----
+function mapPermissionsToCRUD(perms: PermissionDTO[]): Record<string, CRUD> {
+  const mapped: Record<string, CRUD> = {};
+  perms.forEach((p) => {
+    mapped[p.module] = {
+      read: !!p.canRead,
+      add: !!p.canAdd,
+      update: !!p.canUpdate,
+      delete: !!p.canDelete,
+      view: !!p.canView,
+    };
+  });
+
+  return mapped;
+}
+
+
+export function useRoleAccess(): RoleAccess {
   const { user } = useAuth();
 
-  if (!user) {
-    return {
-      ...rolePermissions.customer, // default minimal access
-      role: null,
-    };
+  const role: Role = (user?.role as Role) || "customer";
+
+  const stored = secureGetItem("permission");
+
+  let serverPermissions: Record<string, CRUD> | null = null;
+
+  try {
+    const parsed = typeof stored === "string" ? JSON.parse(stored) : stored;
+    if (Array.isArray(parsed)) {
+      serverPermissions = mapPermissionsToCRUD(parsed);
+    }
+  } catch (err) {
+    console.warn("Invalid permission data, using defaults:", err);
   }
 
-  const role = user.role as Role;
+  const mergedPermissions: Record<string, CRUD> = {
+    ...defaultRolePermissions[role],
+    ...(serverPermissions || {}),
+  };
+
   return {
-    ...rolePermissions[role],
     role,
+    permissions: mergedPermissions,
   };
 }
+
+
+
+
+

@@ -4,33 +4,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState, useEffect } from "react";
+import { UserDto } from "@/__generated__/graphql";
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  role: string;
-  address: string;
-  createdAt: string;
-}
+
 
 interface UserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user?: User;
-  onSave: (user: User) => void;
+  user?: UserDto;
+  onSave: (user: UserDto) => void;
 }
 
 export function UserDialog({ open, onOpenChange, user, onSave }: UserDialogProps) {
-  const [formData, setFormData] = useState<User>({
+  const [formData, setFormData] = useState<UserDto>({
     id: '',
     name: '',
     email: '',
     phone: '',
-    role: 'customer',
-    address: '',
-    createdAt: new Date().toISOString().split('T')[0],
+    roleName: 'customer',
   });
 
   useEffect(() => {
@@ -42,9 +33,7 @@ export function UserDialog({ open, onOpenChange, user, onSave }: UserDialogProps
         name: '',
         email: '',
         phone: '',
-        role: 'customer',
-        address: '',
-        createdAt: new Date().toISOString().split('T')[0],
+        roleName: 'customer',
       });
     }
   }, [user, open]);
@@ -93,7 +82,7 @@ export function UserDialog({ open, onOpenChange, user, onSave }: UserDialogProps
             </div>
             <div className="grid gap-2">
               <Label htmlFor="role">Role</Label>
-              <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+              <Select value={formData.roleName} onValueChange={(value) => setFormData({ ...formData, roleName: value })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -107,7 +96,7 @@ export function UserDialog({ open, onOpenChange, user, onSave }: UserDialogProps
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid gap-2">
+            {/* <div className="grid gap-2">
               <Label htmlFor="address">Address</Label>
               <Input
                 id="address"
@@ -115,7 +104,7 @@ export function UserDialog({ open, onOpenChange, user, onSave }: UserDialogProps
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 required
               />
-            </div>
+            </div> */}
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

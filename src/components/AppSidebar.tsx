@@ -28,37 +28,55 @@ import { useRoleAccess } from "@/hooks/useRoleAccess";
 
 const allMenuItems = [
   { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: null },
-  { title: "Shops", url: "/dashboard/shops", icon: Store, permission: "canAccessShops" },
-  { title: "Products", url: "/dashboard/products", icon: Package, permission: "canAccessProducts" },
-  { title: "Orders", url: "/dashboard/orders", icon: ShoppingCart, permission: "canAccessOrders" },
-  { title: "Users", url: "/dashboard/users", icon: Users, permission: "canAccessUsers" },
-  { title: "Payments", url: "/dashboard/payments", icon: CreditCard, permission: "canAccessPayments" },
-  { title: "Coupons", url: "/dashboard/coupons", icon: Ticket, permission: "canAccessSettings" },
-  { title: "Delivery", url: "/dashboard/delivery", icon: Truck, permission: "canAccessDelivery" },
-  { title: "Map", url: "/dashboard/map", icon: MapPin, permission: "canAccessMap" },
-  { title: "Tickets", url: "/dashboard/tickets", icon: Ticket, permission: "canAccessTickets" },
-  { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3, permission: "canAccessAnalytics" },
-  { title: "Notifications", url: "/dashboard/notifications", icon: Bell, permission: "canAccessNotifications" },
-  { title: "Banners", url: "/dashboard/banners", icon: FileText, permission: "canAccessSettings" },
-  { title: "Ads", url: "/dashboard/ads", icon: FileText, permission: "canAccessSettings" },
-  { title: "Offers", url: "/dashboard/offers", icon: FileText, permission: "canAccessSettings" },
-  { title: "Gift Cards", url: "/dashboard/giftcards", icon: FileText, permission: "canAccessSettings" },
-  { title: "Logs", url: "/dashboard/logs", icon: FileText, permission: "canAccessLogs" },
-  { title: "Settings", url: "/dashboard/settings", icon: Settings, permission: "canAccessSettings" },
+
+  { title: "Shops", url: "/dashboard/shops", icon: Store, permission: "canAccessShops", allowedRoles: ["admin", "manager", "shop_owner"] },
+
+  { title: "Products", url: "/dashboard/products", icon: Package, permission: "canAccessProducts", allowedRoles: ["admin", "manager", "shop_owner"] },
+
+  { title: "Orders", url: "/dashboard/orders", icon: ShoppingCart, permission: "canAccessOrders", allowedRoles: ["admin", "manager", "delivery_agent"] },
+
+  { title: "Users", url: "/dashboard/users", icon: Users, permission: "canAccessUsers", allowedRoles: ["admin", "manager", "support"] },
+
+  { title: "Payments", url: "/dashboard/payments", icon: CreditCard, permission: "canAccessPayments", allowedRoles: ["admin"] },
+
+  { title: "Coupons", url: "/dashboard/coupons", icon: Ticket, permission: "canAccessSettings", allowedRoles: ["admin"] },
+
+  { title: "Delivery", url: "/dashboard/delivery", icon: Truck, permission: "canAccessDelivery", allowedRoles: ["admin", "delivery_agent"] },
+
+  { title: "Map", url: "/dashboard/map", icon: MapPin, permission: "canAccessMap", allowedRoles: ["admin", "delivery_agent"] },
+
+  { title: "Tickets", url: "/dashboard/tickets", icon: Ticket, permission: "canAccessTickets", allowedRoles: ["admin", "support"] },
+
+  { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3, permission: "canAccessAnalytics", allowedRoles: ["admin"] },
+
+  { title: "Notifications", url: "/dashboard/notifications", icon: Bell, permission: "canAccessNotifications", allowedRoles: ["admin", "support", "manager"] },
+
+  { title: "Logs", url: "/dashboard/logs", icon: FileText, permission: "canAccessLogs", allowedRoles: ["admin"] },
+
+  { title: "Settings", url: "/dashboard/settings", icon: Settings, permission: "canAccessSettings", allowedRoles: ["admin"] },
 ];
 
+
 export function AppSidebar() {
-  const permissions = useRoleAccess();
+  const { role, permissions } = useRoleAccess();
 
   const menuItems = allMenuItems.filter((item) => {
+
+    // No permission → always show (like Overview)
     if (!item.permission) return true;
-    const perm = permissions[item.permission as keyof typeof permissions];
-    // Check if perm is an object with read/view properties
-    if (perm && typeof perm === "object" && ("read" in perm || "view" in perm)) {
-      return (perm as any).read || (perm as any).view;
+    // Step 1: Check role allowed
+    if (item.allowedRoles && !item.allowedRoles.includes(role)) {
+      return false;
     }
-    return false;
+
+    // Step 2: Check CRUD permissions
+    const perm = permissions[item.permission];
+    if (!perm) return false;
+
+    // If they have read OR view, they can access
+    return perm.read || perm.view;
   });
+
 
   return (
     <Sidebar>

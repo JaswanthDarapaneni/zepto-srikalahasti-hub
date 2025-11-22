@@ -1,11 +1,11 @@
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useRoleAccess } from '@/hooks/useRoleAccess'; // adjust import path
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRoleAccess } from "@/hooks/useRoleAccess";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   allowedRoles?: string[];
-  requiredPermission?: keyof ReturnType<typeof useRoleAccess>; // e.g. 'canAccessOrders'
+  requiredPermission?: string; // NOW DYNAMIC
 }
 
 export const ProtectedRoute = ({
@@ -14,25 +14,31 @@ export const ProtectedRoute = ({
   requiredPermission,
 }: ProtectedRouteProps) => {
   const { user, isAuthenticated } = useAuth();
-  const { role, ...permissions } = useRoleAccess();
+
+  // 🔥 Correct destructuring
+  const { role, permissions } = useRoleAccess();
+
   const location = useLocation();
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // ✅ Role check
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    return <Navigate to={`/${user.role}`} replace />;
+  if (allowedRoles && !allowedRoles.includes(role)) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
-  // ✅ Permission check
   if (requiredPermission) {
-    const permission = permissions[requiredPermission];
-    if (!permission || !permission.read) {
+    const perm = permissions[requiredPermission];
+
+    if (!perm || !perm.read) {
+      console.warn(
+        `⛔ Access blocked. Missing permission "${requiredPermission}".`
+      );
       return <Navigate to="/unauthorized" replace />;
     }
   }
 
   return <>{children}</>;
 };
+

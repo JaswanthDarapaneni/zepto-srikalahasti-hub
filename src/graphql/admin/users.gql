@@ -1,0 +1,129 @@
+query GetAllUsers {
+  getAllUsers {
+    id
+    name
+    email
+    phone
+    roleName
+    permissions {
+      module
+      canRead
+      canAdd
+      canUpdate
+      canDelete
+      canView
+    }
+  }
+}
+
+query GetUserByEmail($email: String!) {
+  getUserByEmail(email: $email) {
+    id
+    name
+    email
+    phone
+    roleName
+     permissions {
+      module
+      canRead
+      canAdd
+      canUpdate
+      canDelete
+      canView
+    }
+  }
+}
+
+# ✅ Get user by ID (requires id variable)
+query GetUserById($id: ID!) {
+  getUserById(id: $id) {
+    id
+    name
+    email
+    phone
+    roleName
+  }
+}
+
+query GetAdminMeta {
+  getAdminMeta {
+    modules {
+      id
+      name
+    }
+    roles {
+      id
+      name
+    }
+  }
+}
+
+query GetPaginatedUsers(
+  $page: Int!
+  $limit: Int!
+  $sortBy: String!
+  $sortDir: String!
+  $search: String
+) {
+  getPaginatedUsers(
+    page: $page
+    limit: $limit
+    sortBy: $sortBy
+    sortDir: $sortDir
+    search: $search
+  ) {
+    content {
+      id
+      name
+      email
+      roleName
+      permissions {
+      module
+      canRead
+      canAdd
+      canUpdate
+      canDelete
+      canView
+    }
+     missingPermissions{
+        module
+        canAdd
+        canRead,
+        canUpdate,
+        canDelete,
+        canView
+      }
+    }
+    
+    pageNumber
+    totalElements
+    totalPages
+    last
+  }
+}
+
+mutation EditUser($id: ID!, $input: RegisterRequest!) {
+  editUser(id: $id, input: $input) {
+    id
+    name
+    email
+    roleName
+  }
+}
+
+mutation UpdatePassword(
+  $email: String!
+  $oldPassword: String!
+  $newPassword: String!
+) {
+  updatePassword(
+    email: $email
+    oldPassword: $oldPassword
+    newPassword: $newPassword
+  )
+}
+
+# # ✅ Reset password
+mutation ResetPassword($email: String!, $newPassword: String!) {
+  resetPassword(email: $email, newPassword: $newPassword)
+}

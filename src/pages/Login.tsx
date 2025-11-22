@@ -3,48 +3,61 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, LogIn } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { secureGetItem } from "@/lib/utils";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const success = login(email, password);
-    
-    if (success) {
-      toast({
-        title: "Login Successful",
-        description: "Welcome back!",
-      });
-      
-      // Get the logged-in user from localStorage immediately after login
-      const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
-      const role = loggedInUser.role;
-      
-      // Redirect based on role
-      if (role === "customer") {
-        navigate("/customer");
-      } else if (role === "delivery_agent") {
-        navigate("/dashboard/delivery");
-      } else if (role === "support") {
-        navigate("/dashboard/tickets");
+
+    try {
+      const success = await login(email, password); // ⬅️ await here
+
+      if (success) {
+        toast({
+          title: "Login Successful",
+          description: "Welcome back!",
+        });
+
+        // const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
+        const loggedInUser = JSON.parse(secureGetItem("user") || "{}");
+        const role = loggedInUser?.role || ""; // ⬅️ get the role properly
+        if (role === "customer".toLocaleUpperCase()) {
+          navigate("/customer");
+        } else if (role === "delivery_agent") {
+          navigate("/dashboard/delivery");
+        } else if (role === "support") {
+          navigate("/dashboard/tickets");
+        } else {
+          navigate("/dashboard");
+        }
       } else {
-        navigate("/dashboard");
+        toast({
+          title: "Login Failed",
+          description: "Invalid email or password",
+          variant: "destructive",
+        });
       }
-    } else {
+    } catch (error) {
       toast({
-        title: "Login Failed",
-        description: "Invalid email or password",
+        title: "Login Error",
+        description: "Something went wrong during login.",
         variant: "destructive",
       });
     }
@@ -62,7 +75,7 @@ const Login = () => {
           </Button>
         </Link>
 
-        <motion.div 
+        <motion.div
           className="mx-auto max-w-md"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

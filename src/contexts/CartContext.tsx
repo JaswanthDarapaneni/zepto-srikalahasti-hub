@@ -1,5 +1,12 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import products from "@/data/products.json";
+import { secureGetItem, secureSetItem } from "@/lib/utils";
 
 export interface CartItem {
   id: string;
@@ -27,12 +34,15 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem("cart");
+    // const saved = localStorage.getItem("cart");
+    const saved = secureGetItem("cart");
+
     return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(items));
+    secureSetItem("users", items);
+    // localStorage.setItem("cart", JSON.stringify(items));
   }, [items]);
 
   const addItem = (productId: string) => {

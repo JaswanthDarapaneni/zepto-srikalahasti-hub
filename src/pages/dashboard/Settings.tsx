@@ -8,11 +8,10 @@ import { Save } from "lucide-react";
 const Settings = () => {
   return (
     <div className="space-y-6">
-      <div>
+      <>
         <h2 className="text-3xl font-bold">Settings</h2>
         <p className="text-muted-foreground">Manage application settings and configuration</p>
-      </div>
-
+      </>
       <Tabs defaultValue="general" className="space-y-4">
         <TabsList>
           <TabsTrigger value="general">General</TabsTrigger>

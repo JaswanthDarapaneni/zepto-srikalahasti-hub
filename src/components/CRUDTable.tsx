@@ -7,6 +7,7 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  Eye,
 } from "lucide-react";
 import ConfirmDialog from "@/components/ConfirmDialog";
 
@@ -39,7 +40,14 @@ interface CRUDTableProps<T> {
   filterComponent?: React.ReactNode;
   extraActions?: React.ReactNode;
   rowsPerPage?: number;
+  onCustomEdit?: (item: T) => void;
+  customUpdate?: boolean;
 
+  onCustomAdd?: () => void;
+  customCreate?: boolean;
+
+  onView?: (item: T) => void;
+  
   /** Pagination */
   serverPagination?: boolean; // if true, we fetch new data from server on page change
   totalRecords?: number; // required if serverPagination is true
@@ -58,11 +66,24 @@ export default function CRUDTable<T extends { id: number | string }>({
   searchPlaceholder = "Search...",
   filterComponent,
   extraActions,
-  permissions = { read: true, update: true, delete: true, view: true, add: true },
+  permissions = {
+    read: true,
+    update: true,
+    delete: true,
+    view: true,
+    add: true,
+  },
   rowsPerPage = 10,
   serverPagination = false,
   totalRecords,
   onPageChange,
+  onCustomEdit,
+  customUpdate = false,
+  onCustomAdd,
+  customCreate = false,
+
+  onView
+  
 }: CRUDTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteItem, setDeleteItem] = useState<T | null>(null);
@@ -137,14 +158,22 @@ export default function CRUDTable<T extends { id: number | string }>({
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-3">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {title}
+            </h3>
 
             <div className="flex items-center gap-3">
               {extraActions && <div>{extraActions}</div>}
               {permissions.add && (
                 <button
-                  onClick={onAdd}
-                  className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors"
+                  onClick={() => {
+                    if (customUpdate && onCustomEdit) {
+                      onCustomAdd();
+                    } else {
+                      onAdd();
+                    }
+                  }}
+                  className="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg transition-colors"
                 >
                   <Plus className="w-4 h-4 mr-2" /> Add New
                 </button>
@@ -155,7 +184,9 @@ export default function CRUDTable<T extends { id: number | string }>({
           {/* Filters + Search */}
           {(filterComponent || searchable) && (
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-              {filterComponent && <div className="w-full md:w-auto">{filterComponent}</div>}
+              {filterComponent && (
+                <div className="w-full md:w-auto">{filterComponent}</div>
+              )}
 
               {searchable && (
                 <div className="relative w-full md:w-64">
@@ -226,10 +257,25 @@ export default function CRUDTable<T extends { id: number | string }>({
                       <div className="flex items-center justify-end space-x-2">
                         {permissions.update && (
                           <button
-                            onClick={() => onEdit(row)}
+                            onClick={() => {
+                              if (customUpdate && onCustomEdit) {
+                                onCustomEdit(row);
+                              } else {
+                                onEdit(row);
+                              }
+                            }}
                             className="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg transition-colors"
                           >
                             <Edit className="w-4 h-4" />
+                          </button>
+                        )}
+
+                        {permissions.view && (
+                          <button
+                            onClick={() => (onView ? onView(row) : null)}
+                            className="p-2 text-green-600 hover:bg-green-100 dark:hover:bg-green-900 rounded-lg transition-colors"
+                          >
+                            <Eye className="w-4 h-4" />
                           </button>
                         )}
                         {permissions.delete && (

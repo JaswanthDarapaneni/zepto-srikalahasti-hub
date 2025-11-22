@@ -31,7 +31,7 @@ import DashboardHome from "./pages/DashboardHome";
 import DashboardShops from "./pages/dashboard/Shops";
 import DashboardProducts from "./pages/dashboard/Products";
 import Orders from "./pages/dashboard/Orders";
-import Users from "./pages/dashboard/Users";
+import Users from "./pages/dashboard/Admin/Users";
 import Payments from "./pages/dashboard/Payments";
 import Delivery from "./pages/dashboard/Delivery";
 import MapView from "./pages/dashboard/MapView";
@@ -46,6 +46,9 @@ import Ads from "./pages/dashboard/Ads";
 import Offers from "./pages/dashboard/Offers";
 import GiftCards from "./pages/dashboard/GiftCards";
 import NotFound from "./pages/NotFound";
+import UserView from "./pages/dashboard/Admin/UserView";
+import { useRoleAccess } from "./hooks/useRoleAccess";
+import { accessRole } from "./lib/route_config";
 
 const queryClient = new QueryClient();
 
@@ -90,40 +93,10 @@ const App = () => (
                 <Route path="/" element={<Navigate to="/customer" replace />} />
                 <Route path="/login" element={<Login />} />
 
-                {/* Dashboard Routes - Protected */}
-                {/* <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>}>
-                  <Route index element={<DashboardHome />} />
-                  <Route path="shops" element={<DashboardShops />} />
-                  <Route path="products" element={<DashboardProducts />} />
-                  <Route path="orders" element={<Orders />} />
-                  <Route path="users" element={<Users />} />
-                  <Route path="payments" element={<Payments />} />
-                  <Route path="delivery" element={<Delivery />} />
-                  <Route path="map" element={<MapView />} />
-                  <Route path="tickets" element={<Tickets />} />
-                  <Route path="analytics" element={<Analytics />} />
-                  <Route path="notifications" element={<Notifications />} />
-                  <Route path="logs" element={<Logs />} />
-                  <Route path="coupons" element={<Coupons />} />
-                  <Route path="banners" element={<Banners />} />
-                  <Route path="ads" element={<Ads />} />
-                  <Route path="offers" element={<Offers />} />
-                  <Route path="giftcards" element={<GiftCards />} />
-                  <Route path="settings" element={<Settings />} />
-                </Route> */}
-
                 <Route
                   path="/dashboard"
                   element={
-                    <ProtectedRoute
-                      allowedRoles={[
-                        "admin",
-                        "manager",
-                        "shop_owner",
-                        "delivery_agent",
-                        "support",
-                      ]}
-                    >
+                    <ProtectedRoute>
                       <Dashboard />
                     </ProtectedRoute>
                   }
@@ -164,8 +137,17 @@ const App = () => (
                   <Route
                     path="users"
                     element={
-                      <ProtectedRoute requiredPermission="canAccessUsers">
+                      <ProtectedRoute  requiredPermission="canAccessUsers">
                         <Users />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="users/:id"
+                    element={
+                      <ProtectedRoute requiredPermission="canAccessUsers">
+                        <UserView />
                       </ProtectedRoute>
                     }
                   />

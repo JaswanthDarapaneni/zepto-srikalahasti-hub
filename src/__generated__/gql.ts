@@ -1,0 +1,46 @@
+/* eslint-disable */
+import * as types from './graphql';
+import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
+
+/**
+ * Map of all GraphQL operations in the project.
+ *
+ * This map has several performance disadvantages:
+ * 1. It is not tree-shakeable, so it will include all operations in the project.
+ * 2. It is not minifiable, so the string of a GraphQL query will be multiple times inside the bundle.
+ * 3. It does not support dead code elimination, so it will add unused operations.
+ *
+ * Therefore it is highly recommended to use the babel or swc plugin for production.
+ * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
+ */
+type Documents = {
+    "query GetAllUsers {\n  getAllUsers {\n    id\n    name\n    email\n    phone\n    roleName\n    permissions {\n      module\n      canRead\n      canAdd\n      canUpdate\n      canDelete\n      canView\n    }\n  }\n}\n\nquery GetUserByEmail($email: String!) {\n  getUserByEmail(email: $email) {\n    id\n    name\n    email\n    phone\n    roleName\n    permissions {\n      module\n      canRead\n      canAdd\n      canUpdate\n      canDelete\n      canView\n    }\n  }\n}\n\nquery GetUserById($id: ID!) {\n  getUserById(id: $id) {\n    id\n    name\n    email\n    phone\n    roleName\n  }\n}\n\nquery GetAdminMeta {\n  getAdminMeta {\n    modules {\n      id\n      name\n    }\n    roles {\n      id\n      name\n    }\n  }\n}\n\nquery GetPaginatedUsers($page: Int!, $limit: Int!, $sortBy: String!, $sortDir: String!, $search: String) {\n  getPaginatedUsers(\n    page: $page\n    limit: $limit\n    sortBy: $sortBy\n    sortDir: $sortDir\n    search: $search\n  ) {\n    content {\n      id\n      name\n      email\n      roleName\n      permissions {\n        module\n        canRead\n        canAdd\n        canUpdate\n        canDelete\n        canView\n      }\n      missingPermissions {\n        module\n        canAdd\n        canRead\n        canUpdate\n        canDelete\n        canView\n      }\n    }\n    pageNumber\n    totalElements\n    totalPages\n    last\n  }\n}\n\nmutation EditUser($id: ID!, $input: RegisterRequest!) {\n  editUser(id: $id, input: $input) {\n    id\n    name\n    email\n    roleName\n  }\n}\n\nmutation UpdatePassword($email: String!, $oldPassword: String!, $newPassword: String!) {\n  updatePassword(\n    email: $email\n    oldPassword: $oldPassword\n    newPassword: $newPassword\n  )\n}\n\nmutation ResetPassword($email: String!, $newPassword: String!) {\n  resetPassword(email: $email, newPassword: $newPassword)\n}": typeof types.GetAllUsersDocument,
+};
+const documents: Documents = {
+    "query GetAllUsers {\n  getAllUsers {\n    id\n    name\n    email\n    phone\n    roleName\n    permissions {\n      module\n      canRead\n      canAdd\n      canUpdate\n      canDelete\n      canView\n    }\n  }\n}\n\nquery GetUserByEmail($email: String!) {\n  getUserByEmail(email: $email) {\n    id\n    name\n    email\n    phone\n    roleName\n    permissions {\n      module\n      canRead\n      canAdd\n      canUpdate\n      canDelete\n      canView\n    }\n  }\n}\n\nquery GetUserById($id: ID!) {\n  getUserById(id: $id) {\n    id\n    name\n    email\n    phone\n    roleName\n  }\n}\n\nquery GetAdminMeta {\n  getAdminMeta {\n    modules {\n      id\n      name\n    }\n    roles {\n      id\n      name\n    }\n  }\n}\n\nquery GetPaginatedUsers($page: Int!, $limit: Int!, $sortBy: String!, $sortDir: String!, $search: String) {\n  getPaginatedUsers(\n    page: $page\n    limit: $limit\n    sortBy: $sortBy\n    sortDir: $sortDir\n    search: $search\n  ) {\n    content {\n      id\n      name\n      email\n      roleName\n      permissions {\n        module\n        canRead\n        canAdd\n        canUpdate\n        canDelete\n        canView\n      }\n      missingPermissions {\n        module\n        canAdd\n        canRead\n        canUpdate\n        canDelete\n        canView\n      }\n    }\n    pageNumber\n    totalElements\n    totalPages\n    last\n  }\n}\n\nmutation EditUser($id: ID!, $input: RegisterRequest!) {\n  editUser(id: $id, input: $input) {\n    id\n    name\n    email\n    roleName\n  }\n}\n\nmutation UpdatePassword($email: String!, $oldPassword: String!, $newPassword: String!) {\n  updatePassword(\n    email: $email\n    oldPassword: $oldPassword\n    newPassword: $newPassword\n  )\n}\n\nmutation ResetPassword($email: String!, $newPassword: String!) {\n  resetPassword(email: $email, newPassword: $newPassword)\n}": types.GetAllUsersDocument,
+};
+
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ *
+ *
+ * @example
+ * ```ts
+ * const query = graphql(`query GetUser($id: ID!) { user(id: $id) { name } }`);
+ * ```
+ *
+ * The query argument is unknown!
+ * Please regenerate the types.
+ */
+export function graphql(source: string): unknown;
+
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "query GetAllUsers {\n  getAllUsers {\n    id\n    name\n    email\n    phone\n    roleName\n    permissions {\n      module\n      canRead\n      canAdd\n      canUpdate\n      canDelete\n      canView\n    }\n  }\n}\n\nquery GetUserByEmail($email: String!) {\n  getUserByEmail(email: $email) {\n    id\n    name\n    email\n    phone\n    roleName\n    permissions {\n      module\n      canRead\n      canAdd\n      canUpdate\n      canDelete\n      canView\n    }\n  }\n}\n\nquery GetUserById($id: ID!) {\n  getUserById(id: $id) {\n    id\n    name\n    email\n    phone\n    roleName\n  }\n}\n\nquery GetAdminMeta {\n  getAdminMeta {\n    modules {\n      id\n      name\n    }\n    roles {\n      id\n      name\n    }\n  }\n}\n\nquery GetPaginatedUsers($page: Int!, $limit: Int!, $sortBy: String!, $sortDir: String!, $search: String) {\n  getPaginatedUsers(\n    page: $page\n    limit: $limit\n    sortBy: $sortBy\n    sortDir: $sortDir\n    search: $search\n  ) {\n    content {\n      id\n      name\n      email\n      roleName\n      permissions {\n        module\n        canRead\n        canAdd\n        canUpdate\n        canDelete\n        canView\n      }\n      missingPermissions {\n        module\n        canAdd\n        canRead\n        canUpdate\n        canDelete\n        canView\n      }\n    }\n    pageNumber\n    totalElements\n    totalPages\n    last\n  }\n}\n\nmutation EditUser($id: ID!, $input: RegisterRequest!) {\n  editUser(id: $id, input: $input) {\n    id\n    name\n    email\n    roleName\n  }\n}\n\nmutation UpdatePassword($email: String!, $oldPassword: String!, $newPassword: String!) {\n  updatePassword(\n    email: $email\n    oldPassword: $oldPassword\n    newPassword: $newPassword\n  )\n}\n\nmutation ResetPassword($email: String!, $newPassword: String!) {\n  resetPassword(email: $email, newPassword: $newPassword)\n}"): (typeof documents)["query GetAllUsers {\n  getAllUsers {\n    id\n    name\n    email\n    phone\n    roleName\n    permissions {\n      module\n      canRead\n      canAdd\n      canUpdate\n      canDelete\n      canView\n    }\n  }\n}\n\nquery GetUserByEmail($email: String!) {\n  getUserByEmail(email: $email) {\n    id\n    name\n    email\n    phone\n    roleName\n    permissions {\n      module\n      canRead\n      canAdd\n      canUpdate\n      canDelete\n      canView\n    }\n  }\n}\n\nquery GetUserById($id: ID!) {\n  getUserById(id: $id) {\n    id\n    name\n    email\n    phone\n    roleName\n  }\n}\n\nquery GetAdminMeta {\n  getAdminMeta {\n    modules {\n      id\n      name\n    }\n    roles {\n      id\n      name\n    }\n  }\n}\n\nquery GetPaginatedUsers($page: Int!, $limit: Int!, $sortBy: String!, $sortDir: String!, $search: String) {\n  getPaginatedUsers(\n    page: $page\n    limit: $limit\n    sortBy: $sortBy\n    sortDir: $sortDir\n    search: $search\n  ) {\n    content {\n      id\n      name\n      email\n      roleName\n      permissions {\n        module\n        canRead\n        canAdd\n        canUpdate\n        canDelete\n        canView\n      }\n      missingPermissions {\n        module\n        canAdd\n        canRead\n        canUpdate\n        canDelete\n        canView\n      }\n    }\n    pageNumber\n    totalElements\n    totalPages\n    last\n  }\n}\n\nmutation EditUser($id: ID!, $input: RegisterRequest!) {\n  editUser(id: $id, input: $input) {\n    id\n    name\n    email\n    roleName\n  }\n}\n\nmutation UpdatePassword($email: String!, $oldPassword: String!, $newPassword: String!) {\n  updatePassword(\n    email: $email\n    oldPassword: $oldPassword\n    newPassword: $newPassword\n  )\n}\n\nmutation ResetPassword($email: String!, $newPassword: String!) {\n  resetPassword(email: $email, newPassword: $newPassword)\n}"];
+
+export function graphql(source: string) {
+  return (documents as any)[source] ?? {};
+}
+
+export type DocumentType<TDocumentNode extends DocumentNode<any, any>> = TDocumentNode extends DocumentNode<  infer TType,  any>  ? TType  : never;

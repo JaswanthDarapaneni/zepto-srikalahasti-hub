@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { secureSetItem, secureGetItem } from '@/lib/utils';
 
 interface ProfileDialogProps {
   open: boolean;
@@ -18,7 +19,7 @@ export const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
     name: '',
     email: '',
     phone: '',
-    address: ''
+    // address: ''
   });
 
   useEffect(() => {
@@ -27,22 +28,27 @@ export const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
-        address: user.address
+        // address: user.address
       });
     }
   }, [user]);
 
   const handleSave = () => {
     // Update user in localStorage
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    // const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const users = secureGetItem('users') || '[]';
+
     const updatedUsers = users.map((u: any) => 
       u.id === user?.id ? { ...u, ...formData } : u
     );
-    localStorage.setItem('users', JSON.stringify(updatedUsers));
+     secureSetItem("users", user);
+    // localStorage.setItem('users', JSON.stringify(updatedUsers));
     
     // Update current user
-    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-    localStorage.setItem('user', JSON.stringify({ ...currentUser, ...formData }));
+    const currentUser = secureGetItem("user") || '{}';
+    
+  secureSetItem("user", {...currentUser, ...formData});
+    // localStorage.setItem('user', JSON.stringify({  }));
     
     toast({
       title: 'Profile updated',
@@ -83,14 +89,14 @@ export const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             />
           </div>
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="address">Address</Label>
             <Input
               id="address"
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
             />
-          </div>
+          </div> */}
           <Button onClick={handleSave} className="w-full">Save Changes</Button>
         </div>
       </DialogContent>
